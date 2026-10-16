@@ -1,0 +1,104 @@
+%% =====================================================================
+%%  Internship Tracking System - ERD (proposed database design)
+%%  Matches the reference diagram: entities + fields (PK/FK) + cardinality.
+%%  Render at https://mermaid.live or open docs/erd.html
+%% =====================================================================
+erDiagram
+    USERS {
+        int user_id PK
+        varchar username
+        varchar password_hash
+        enum role
+        varchar email
+        datetime created_at
+    }
+    STUDENTS {
+        int student_id PK
+        int user_id FK
+        varchar student_number
+        varchar full_name
+        varchar course_year_section
+        varchar contact_number
+    }
+    COORDINATORS {
+        int coordinator_id PK
+        int user_id FK
+        varchar name
+        varchar department
+    }
+    COMPANIES {
+        int company_id PK
+        varchar company_name
+        varchar address
+        varchar contact_person
+        varchar contact_email
+    }
+    SUPERVISORS {
+        int supervisor_id PK
+        int company_id FK
+        varchar full_name
+        varchar email
+        varchar contact_number
+    }
+    INTERNSHIPS {
+        int internship_id PK
+        int student_id FK
+        int company_id FK
+        int supervisor_id FK
+        date start_date
+        date end_date
+        enum status
+    }
+    REQUIREMENTS {
+        int requirement_id PK
+        varchar requirement_name
+        varchar description
+        date deadline
+    }
+    REQUIREMENT_SUBMISSIONS {
+        int submission_id PK
+        int requirement_id FK
+        int student_id FK
+        varchar document_path
+        datetime submitted_at
+        enum status
+        int reviewed_by FK
+    }
+    ATTENDANCE {
+        int attendance_id PK
+        int internship_id FK
+        date attendance_date
+        time time_in
+        time time_out
+        decimal hours_rendered
+        varchar qr_scan_reference
+    }
+    EVALUATIONS {
+        int evaluation_id PK
+        int internship_id FK
+        int supervisor_id FK
+        int rating
+        varchar feedback
+        date evaluation_date
+    }
+    NOTIFICATIONS {
+        int notification_id PK
+        int user_id FK
+        varchar message
+        datetime created_at
+        boolean read_status
+    }
+
+    USERS ||--o| STUDENTS : "1 : 0..1"
+    USERS ||--o| COORDINATORS : "1 : 0..1"
+    USERS ||--o| SUPERVISORS : "1 : 0..1"
+    COMPANIES ||--o{ SUPERVISORS : "1 : many"
+    COMPANIES ||--o{ INTERNSHIPS : "1 : many"
+    STUDENTS ||--o{ INTERNSHIPS : "1 : many"
+    SUPERVISORS ||--o{ INTERNSHIPS : "1 : many"
+    REQUIREMENTS ||--o{ REQUIREMENT_SUBMISSIONS : "1 : many"
+    STUDENTS ||--o{ REQUIREMENT_SUBMISSIONS : "1 : many"
+    INTERNSHIPS ||--o{ ATTENDANCE : "1 : many"
+    INTERNSHIPS ||--o{ EVALUATIONS : "1 : many"
+    SUPERVISORS ||--o{ EVALUATIONS : "1 : many"
+    USERS ||--o{ NOTIFICATIONS : "1 : many"

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internship Tracking System - ERD</title>
+<style>
+  :root { --ink:#111; --muted:#555; --line:#e2e2e2; --accent:#ff7300; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: #fff; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  h2 { margin: 34px 0 12px; font-size: 19px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 0 0 22px; font-size: 12px; color: var(--muted); }
+  .mermaid { margin: 0 0 20px; }
+  .note { max-width: 1050px; font-size: 13px; line-height: 1.7; color: #333; background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin: 0 0 14px; }
+  table { border-collapse: collapse; width: 100%; max-width: 1050px; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); }
+  th { background: #fafafa; }
+  code { background: #f1f1f1; padding: 1px 5px; border-radius: 4px; }
+  footer { margin-top: 34px; color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<h1>Internship Tracking System — ERD</h1>
+<p class="sub">Entity-Relationship Diagram &middot; proposed database design based on the system features</p>
+
+<div class="legend">
+  <span><strong>PK</strong> Primary key</span>
+  <span><strong>FK</strong> Foreign key</span>
+  <span>||&mdash;o| &nbsp;=&nbsp; 1 : 0..1</span>
+  <span>||&mdash;o{ &nbsp;=&nbsp; 1 : many</span>
+</div>
+
+<h2>Entity-Relationship Diagram</h2>
+<pre class="mermaid">
+erDiagram
+    USERS {
+        int user_id PK
+        varchar username
+        varchar password_hash
+        enum role
+        varchar email
+        datetime created_at
+    }
+    STUDENTS {
+        int student_id PK
+        int user_id FK
+        varchar student_number
+        varchar full_name
+        varchar course_year_section
+        varchar contact_number
+    }
+    COORDINATORS {
+        int coordinator_id PK
+        int user_id FK
+        varchar name
+        varchar department
+    }
+    COMPANIES {
+        int company_id PK
+        varchar company_name
+        varchar address
+        varchar contact_person
+        varchar contact_email
+    }
+    SUPERVISORS {
+        int supervisor_id PK
+        int company_id FK
+        varchar full_name
+        varchar email
+        varchar contact_number
+    }
+    INTERNSHIPS {
+        int internship_id PK
+        int student_id FK
+        int company_id FK
+        int supervisor_id FK
+        date start_date
+        date end_date
+        enum status
+    }
+    REQUIREMENTS {
+        int requirement_id PK
+        varchar requirement_name
+        varchar description
+        date deadline
+    }
+    REQUIREMENT_SUBMISSIONS {
+        int submission_id PK
+        int requirement_id FK
+        int student_id FK
+        varchar document_path
+        datetime submitted_at
+        enum status
+        int reviewed_by FK
+    }
+    ATTENDANCE {
+        int attendance_id PK
+        int internship_id FK
+        date attendance_date
+        time time_in
+        time time_out
+        decimal hours_rendered
+        varchar qr_scan_reference
+    }
+    EVALUATIONS {
+        int evaluation_id PK
+        int internship_id FK
+        int supervisor_id FK
+        int rating
+        varchar feedback
+        date evaluation_date
+    }
+    NOTIFICATIONS {
+        int notification_id PK
+        int user_id FK
+        varchar message
+        datetime created_at
+        boolean read_status
+    }
+
+    USERS ||--o| STUDENTS : "1 : 0..1"
+    USERS ||--o| COORDINATORS : "1 : 0..1"
+    USERS ||--o| SUPERVISORS : "1 : 0..1"
+    COMPANIES ||--o{ SUPERVISORS : "1 : many"
+    COMPANIES ||--o{ INTERNSHIPS : "1 : many"
+    STUDENTS ||--o{ INTERNSHIPS : "1 : many"
+    SUPERVISORS ||--o{ INTERNSHIPS : "1 : many"
+    REQUIREMENTS ||--o{ REQUIREMENT_SUBMISSIONS : "1 : many"
+    STUDENTS ||--o{ REQUIREMENT_SUBMISSIONS : "1 : many"
+    INTERNSHIPS ||--o{ ATTENDANCE : "1 : many"
+    INTERNSHIPS ||--o{ EVALUATIONS : "1 : many"
+    SUPERVISORS ||--o{ EVALUATIONS : "1 : many"
+    USERS ||--o{ NOTIFICATIONS : "1 : many"
+</pre>
+
+<h2>Relationships</h2>
+<table>
+  <tr><th>From</th><th>To</th><th>Cardinality</th></tr>
+  <tr><td>USERS</td><td>STUDENTS</td><td>1 : 0..1</td></tr>
+  <tr><td>USERS</td><td>COORDINATORS</td><td>1 : 0..1</td></tr>
+  <tr><td>USERS</td><td>SUPERVISORS</td><td>1 : 0..1</td></tr>
+  <tr><td>COMPANIES</td><td>SUPERVISORS</td><td>1 : many</td></tr>
+  <tr><td>COMPANIES</td><td>INTERNSHIPS</td><td>1 : many</td></tr>
+  <tr><td>STUDENTS</td><td>INTERNSHIPS</td><td>1 : many</td></tr>
+  <tr><td>SUPERVISORS</td><td>INTERNSHIPS</td><td>1 : many</td></tr>
+  <tr><td>REQUIREMENTS</td><td>REQUIREMENT_SUBMISSIONS</td><td>1 : many</td></tr>
+  <tr><td>STUDENTS</td><td>REQUIREMENT_SUBMISSIONS</td><td>1 : many</td></tr>
+  <tr><td>INTERNSHIPS</td><td>ATTENDANCE</td><td>1 : many</td></tr>
+  <tr><td>INTERNSHIPS</td><td>EVALUATIONS</td><td>1 : many</td></tr>
+  <tr><td>SUPERVISORS</td><td>EVALUATIONS</td><td>1 : many</td></tr>
+  <tr><td>USERS</td><td>NOTIFICATIONS</td><td>1 : many</td></tr>
+</table>
+
+<div class="note">
+  <strong>Key:</strong> PK = Primary key &middot; FK = Foreign key &middot;
+  relationships shown as <code>1 : many</code> or <code>1 : 0..1</code>.
+</div>
+
+<footer>Internship Tracking System &middot; proposed ERD &middot; generated with Mermaid (works offline via bundled mermaid.min.js).</footer>
+
+<script src="mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'loose', er: { useMaxWidth: true } });
+</script>
+</body>
+</html>

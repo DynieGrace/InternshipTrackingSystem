@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internship Tracking System — Wireframes</title>
+<style>
+  :root { --accent:#ff7300; --ink:#1a1a1a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: #fff; }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  .sub { color: #666; font-size: 13px; margin: 0 0 22px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px; }
+  .wf { border: 1px solid #ccc; border-radius: 10px; overflow: hidden; background: #fff; break-inside: avoid; }
+  .wf-cap { background: #f4f4f4; border-bottom: 1px solid #ccc; padding: 8px 13px; font-size: 13px; font-weight: 700; }
+  .wf-cap small { display:block; font-weight: 400; color: #888; font-size: 10px; margin-top: 2px; }
+  .wf-body { display: flex; min-height: 235px; }
+  .wf-side { width: 124px; flex: 0 0 124px; background: #fafafa; border-right: 1px solid #eee; padding: 10px; }
+  .wf-main { flex: 1; padding: 12px; min-width: 0; }
+  .box { background: #ececec; border: 1px dashed #c0c0c0; border-radius: 5px; padding: 7px; font-size: 9.5px; color: #555; text-align: center; line-height: 1.35; }
+  .box.dark { background: #333; color: #fff; border-color: #333; }
+  .box.orange { background: #ff7300; color: #fff; border-color: #ff7300; }
+  .box.outline { background: #fff; }
+  .row { display: flex; gap: 7px; margin-bottom: 7px; }
+  .row > * { flex: 1; }
+  .field { margin-bottom: 7px; }
+  .field label { display:block; font-size: 9px; color: #777; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .4px; }
+  .field .input { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 6px 8px; font-size: 10px; color: #999; }
+  .lbl { font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: .4px; margin: 2px 0 6px; }
+  .table { border: 1px solid #ddd; border-radius: 5px; overflow: hidden; font-size: 9.5px; color: #666; }
+  .table .th { display: flex; background: #f3f3f3; border-bottom: 1px solid #ddd; font-weight: 700; }
+  .table .th span, .table .tr span { flex: 1; padding: 5px 6px; border-right: 1px solid #eee; }
+  .table .tr { display: flex; border-bottom: 1px solid #f0f0f0; }
+  .qr { width: 90px; height: 90px; margin: 6px auto; border: 1px solid #bbb; border-radius: 6px; background: repeating-linear-gradient(45deg,#e5e5e5,#e5e5e5 4px,#f4f4f4 4px,#f4f4f4 8px); }
+  .tag { display:inline-block; background:#fff2e6; color:#e86500; border:1px solid #f3c8a7; border-radius:20px; padding:1px 7px; font-size:8.5px; font-weight:700; }
+  footer { margin-top: 24px; color: #999; font-size: 11px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>Internship Tracking System — Data Modeling Wireframes</h1>
+<p class="sub">Low-fidelity wireframes showing the layout and the data fields of each screen.</p>
+
+<div class="grid">
+
+  <!-- 1 LOGIN -->
+  <div class="wf">
+    <div class="wf-cap">1 · Login<small>users: email/username, password</small></div>
+    <div class="wf-body" style="min-height:235px">
+      <div class="wf-main" style="display:flex;align-items:center;justify-content:center">
+        <div style="width:260px">
+          <div class="box outline" style="height:40px;display:flex;align-items:center;justify-content:center;margin-bottom:8px">Logo</div>
+          <div class="field"><label>Email / username</label><div class="input">student01</div></div>
+          <div class="field"><label>Password</label><div class="input">••••••••</div></div>
+          <div class="row"><div style="text-align:left;font-size:9px;color:#888">☑ Remember me</div><div style="text-align:right;font-size:9px;color:#e86500">Forgot?</div></div>
+          <div class="box orange" style="margin-top:8px">Sign In</div>
+          <div style="text-align:center;font-size:9px;color:#888;margin-top:8px">Create account</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 STUDENT DASHBOARD -->
+  <div class="wf">
+    <div class="wf-cap">2 · Student Dashboard<small>placement, progress %, hours, notifications</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark" style="margin-bottom:4px">Profile</div>
+        <div class="box dark" style="margin-bottom:4px">Placement</div>
+        <div class="box dark" style="margin-bottom:4px">Requirements</div>
+        <div class="box dark" style="margin-bottom:4px">Attendance</div>
+        <div class="box dark" style="margin-bottom:4px">Evaluations</div>
+        <div class="box dark">Notifications</div>
+      </div>
+      <div class="wf-main">
+        <div class="box outline" style="text-align:left;margin-bottom:8px">Welcome, <b>Juan Dela Cruz</b></div>
+        <div class="row">
+          <div class="box"><div class="lbl" style="color:#888">Approved hrs</div><b>16.00</b></div>
+          <div class="box"><div class="lbl">Remaining</div><b>470</b></div>
+          <div class="box"><div class="lbl">Requirements</div><b>1/4</b></div>
+        </div>
+        <div class="box outline" style="text-align:left;margin-bottom:7px"><span class="tag">Progress</span> 3.3% ▓▓░░░░░░░░</div>
+        <div class="lbl">My attendance QR</div>
+        <div class="qr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 STUDENT ATTENDANCE -->
+  <div class="wf">
+    <div class="wf-cap">3 · Student — Attendance &amp; Hours<small>attendance: time_in, time_out, rendered_hours</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark" style="margin-bottom:4px">Attendance</div>
+        <div class="box dark" style="margin-bottom:4px">Requirements</div>
+        <div class="box dark">Evaluations</div>
+      </div>
+      <div class="wf-main">
+        <div class="row">
+          <div class="box"><div class="lbl">Approved</div><b>16h</b></div>
+          <div class="box"><div class="lbl">Pending</div><b>7h</b></div>
+          <div class="box"><div class="lbl">Remaining</div><b>470h</b></div>
+        </div>
+        <div class="row">
+          <div class="box" style="flex:1"><span class="tag">QR code</span><div class="qr" style="width:60px;height:60px"></div></div>
+          <div class="box" style="flex:1.4">
+            <div class="lbl">Record</div>
+            <div class="box orange" style="margin-bottom:5px">Time in / Time out</div>
+            <div class="lbl">History</div>
+            <div class="table"><div class="th"><span>In</span><span>Out</span><span>Hrs</span></div><div class="tr"><span>08:00</span><span>16:00</span><span>8.0</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 STUDENT REQUIREMENTS -->
+  <div class="wf">
+    <div class="wf-cap">4 · Student — Requirements<small>requirement_submissions: status, remarks</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark" style="margin-bottom:4px">Requirements</div>
+        <div class="box dark">Notifications</div>
+      </div>
+      <div class="wf-main">
+        <div class="box outline" style="text-align:left;margin-bottom:7px">
+          <div class="lbl">Upload document</div>
+          <div class="row"><div class="field" style="flex:1"><label>Requirement</label><div class="input">Weekly journal</div></div></div>
+          <div class="field"><label>File (PDF/JPG/PNG)</label><div class="input">choose file…</div></div>
+          <div class="box orange">Submit</div>
+        </div>
+        <div class="table">
+          <div class="th"><span>Requirement</span><span>Deadline</span><span>Status</span></div>
+          <div class="tr"><span>Agreement</span><span>Oct 20</span><span><span class="tag">Approved</span></span></div>
+          <div class="tr"><span>Journal</span><span>Oct 14</span><span><span class="tag">Pending</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 COORDINATOR DASHBOARD -->
+  <div class="wf">
+    <div class="wf-cap">5 · Coordinator Dashboard<small>counts, review queue</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark" style="margin-bottom:4px">Students</div>
+        <div class="box dark" style="margin-bottom:4px">Companies</div>
+        <div class="box dark" style="margin-bottom:4px">Placements</div>
+        <div class="box dark" style="margin-bottom:4px">Requirements</div>
+        <div class="box dark">Reports</div>
+      </div>
+      <div class="wf-main">
+        <div class="box outline" style="text-align:left;margin-bottom:8px">Welcome, <b>Coordinator</b></div>
+        <div class="row">
+          <div class="box"><div class="lbl">Students</div><b>3</b></div>
+          <div class="box"><div class="lbl">Companies</div><b>2</b></div>
+          <div class="box"><div class="lbl">Pending docs</div><b>1</b></div>
+          <div class="box"><div class="lbl">Attendance</div><b>1</b></div>
+        </div>
+        <div class="lbl">Review queue</div>
+        <div class="row"><div class="box">Review documents</div><div class="box">Verify attendance</div><div class="box">Manage placements</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 COORDINATOR STUDENTS -->
+  <div class="wf">
+    <div class="wf-cap">6 · Coordinator — Students<small>students: student_number, full_name, course_year_section</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark" style="margin-bottom:4px">Students</div>
+        <div class="box dark">Companies</div>
+      </div>
+      <div class="wf-main">
+        <div class="box outline" style="text-align:left;margin-bottom:7px">
+          <div class="lbl">Add student</div>
+          <div class="row"><div class="field" style="flex:1"><label>Full name</label><div class="input"></div></div><div class="field" style="flex:1"><label>Student ID</label><div class="input"></div></div></div>
+          <div class="box orange">Create</div>
+        </div>
+        <div class="table">
+          <div class="th"><span>ID</span><span>Student</span><span>Course/Year</span><span>Status</span></div>
+          <div class="tr"><span>STU-001</span><span>Juan D.</span><span>BSIT-4</span><span><span class="tag">Active</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 SUPERVISOR SCAN -->
+  <div class="wf">
+    <div class="wf-cap">7 · Supervisor — Scan Attendance<small>attendance: qr_scan_reference, time_in/out</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark" style="margin-bottom:4px">My Interns</div>
+        <div class="box dark">Scan Attendance</div>
+      </div>
+      <div class="wf-main">
+        <div class="box outline" style="height:70px;display:flex;align-items:center;justify-content:center;margin-bottom:7px">📷 Camera scanner</div>
+        <div class="row"><div class="box orange">Start Camera</div><div class="box">Stop</div></div>
+        <div class="lbl" style="margin-top:7px">Scan result</div>
+        <div class="table">
+          <div class="th"><span>Student</span><span>Time in</span><span>Time out</span></div>
+          <div class="tr"><span>Juan D.</span><span>08:00</span><span>—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 REPORTS -->
+  <div class="wf">
+    <div class="wf-cap">8 · Coordinator — Reports<small>filters: date range, report type; export CSV/print</small></div>
+    <div class="wf-body">
+      <div class="wf-side">
+        <div class="box dark" style="margin-bottom:8px">Logo</div>
+        <div class="box dark" style="margin-bottom:4px">Dashboard</div>
+        <div class="box dark">Reports</div>
+      </div>
+      <div class="wf-main">
+        <div class="row">
+          <div class="field" style="flex:1"><label>Report</label><div class="input">Attendance</div></div>
+          <div class="field" style="flex:1"><label>From</label><div class="input">date</div></div>
+          <div class="field" style="flex:1"><label>To</label><div class="input">date</div></div>
+        </div>
+        <div class="row"><div class="box orange">Generate</div><div class="box">Export CSV</div><div class="box">Print</div></div>
+        <div class="table" style="margin-top:7px">
+          <div class="th"><span>Student</span><span>Hours</span><span>Status</span></div>
+          <div class="tr"><span>Juan D.</span><span>16</span><span>Approved</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Internship Tracking System · Data Modeling Wireframes · gray-box / low-fidelity · orange = action</footer>
+</body>
+</html>

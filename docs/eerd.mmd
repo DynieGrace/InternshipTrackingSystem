@@ -1,0 +1,187 @@
+%% =====================================================================
+%%  Internship Tracking System - EERD (Mermaid source)
+%%  Database: internship_tracking_system (MySQL / MariaDB)
+%%  Render with Mermaid (https://mermaid.live) or the bundled docs/eerd.html
+%% =====================================================================
+
+%% ---------- Part 1: Entity-Relationship Diagram ----------
+erDiagram
+    USERS {
+        bigint id PK
+        varchar username UK
+        varchar full_name
+        varchar email UK
+        varchar avatar
+        varchar password_hash
+        enum role "student|supervisor|coordinator"
+        enum status
+        timestamp created_at
+        timestamp updated_at
+    }
+    PASSWORD_RESETS {
+        bigint id PK
+        bigint user_id FK
+        char token_hash UK
+        datetime expires_at
+        timestamp created_at
+    }
+    STUDENT_PROFILES {
+        bigint id PK
+        bigint user_id FK,UK
+        varchar student_number UK
+        varchar course
+        varchar year_level
+        varchar phone
+        varchar address
+        char attendance_token UK
+        timestamp created_at
+    }
+    COMPANIES {
+        bigint id PK
+        varchar name
+        varchar address
+        varchar contact_person
+        varchar contact_email
+        varchar contact_phone
+        enum status
+        timestamp created_at
+    }
+    SUPERVISORS {
+        bigint id PK
+        bigint user_id FK,UK
+        bigint company_id FK
+        varchar job_title
+    }
+    INTERNSHIP_PLACEMENTS {
+        bigint id PK
+        bigint student_id FK
+        bigint company_id FK
+        bigint supervisor_id FK
+        date start_date
+        date end_date
+        decimal required_hours
+        enum status
+        tinyint archived
+        timestamp created_at
+    }
+    REQUIREMENTS {
+        bigint id PK
+        varchar title
+        text description
+        date due_date
+        varchar allowed_extensions
+        int max_file_bytes
+        tinyint active
+        tinyint archived
+        timestamp created_at
+    }
+    DOCUMENT_SUBMISSIONS {
+        bigint id PK
+        bigint requirement_id FK
+        bigint student_id FK
+        varchar stored_name
+        varchar original_name
+        varchar mime_type
+        int file_size
+        enum status
+        bigint reviewer_id FK
+        varchar reviewer_remarks
+        timestamp submitted_at
+        datetime reviewed_at
+    }
+    ATTENDANCE_RECORDS {
+        bigint id PK
+        bigint placement_id FK
+        bigint student_id FK
+        datetime time_in
+        datetime time_out
+        decimal rendered_hours
+        enum status
+        bigint verified_by FK
+        datetime verified_at
+        varchar correction_reason
+        bigint corrected_by FK
+        datetime corrected_at
+        varchar flagged_reason
+        timestamp created_at
+    }
+    EVALUATION_CRITERIA {
+        bigint id PK
+        varchar name UK
+        decimal weight
+        tinyint active
+    }
+    EVALUATIONS {
+        bigint id PK
+        bigint placement_id FK
+        bigint student_id FK
+        bigint supervisor_id FK
+        text comments
+        tinyint released
+        timestamp evaluated_at
+    }
+    EVALUATION_SCORES {
+        bigint evaluation_id PK,FK
+        bigint criteria_id PK,FK
+        tinyint rating
+    }
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        varchar title
+        varchar body
+        datetime read_at
+        timestamp created_at
+    }
+    ANNOUNCEMENTS {
+        bigint id PK
+        varchar title
+        text body
+        enum audience
+        bigint created_by FK
+        timestamp created_at
+    }
+    AUDIT_LOGS {
+        bigint id PK
+        bigint user_id FK
+        varchar action
+        varchar details
+        varchar ip_address
+        timestamp created_at
+    }
+
+    USERS ||--o| STUDENT_PROFILES : "student profile"
+    USERS ||--o| SUPERVISORS : "supervisor profile"
+    USERS ||--o{ PASSWORD_RESETS : "requests"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    USERS ||--o{ ANNOUNCEMENTS : "publishes"
+    USERS ||--o{ AUDIT_LOGS : "performs"
+    USERS ||--o{ DOCUMENT_SUBMISSIONS : "reviews"
+    USERS ||--o{ ATTENDANCE_RECORDS : "verifies"
+    USERS ||--o{ ATTENDANCE_RECORDS : "corrects"
+    COMPANIES ||--o{ SUPERVISORS : "employs"
+    COMPANIES ||--o{ INTERNSHIP_PLACEMENTS : "hosts"
+    STUDENT_PROFILES ||--o{ INTERNSHIP_PLACEMENTS : "assigned to"
+    SUPERVISORS ||--o{ INTERNSHIP_PLACEMENTS : "supervises"
+    STUDENT_PROFILES ||--o{ DOCUMENT_SUBMISSIONS : "submits"
+    REQUIREMENTS ||--o{ DOCUMENT_SUBMISSIONS : "requires"
+    INTERNSHIP_PLACEMENTS ||--o{ ATTENDANCE_RECORDS : "records"
+    STUDENT_PROFILES ||--o{ ATTENDANCE_RECORDS : "attends"
+    INTERNSHIP_PLACEMENTS ||--o{ EVALUATIONS : "evaluated in"
+    STUDENT_PROFILES ||--o{ EVALUATIONS : "receives"
+    SUPERVISORS ||--o{ EVALUATIONS : "writes"
+    EVALUATIONS ||--o{ EVALUATION_SCORES : "has"
+    EVALUATION_CRITERIA ||--o{ EVALUATION_SCORES : "applied to"
+
+%% ---------- Part 2: Specialization / Generalization (ISA) ----------
+%% Use a flowchart (Mermaid ER diagrams cannot draw ISA directly).
+flowchart TD
+    U["USERS<br/>(superclass)<br/>discriminator: role"]
+    D(("d"))
+    ST["STUDENT_PROFILES<br/>role = student"]
+    SU["SUPERVISORS<br/>role = supervisor"]
+    CO["COORDINATOR<br/>role = coordinator<br/>(no separate table)"]
+    U --- D
+    D --- ST
+    D --- SU
+    D --- CO

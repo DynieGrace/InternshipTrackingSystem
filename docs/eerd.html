@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internship Tracking System - EERD</title>
+<style>
+  :root { --ink:#111; --muted:#555; --line:#e2e2e2; --accent:#ff7300; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: #fff; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  h2 { margin: 40px 0 12px; font-size: 19px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 0 0 22px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .mermaid { margin: 0 0 20px; }
+  .note { max-width: 1000px; font-size: 13px; line-height: 1.7; color: #333; background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .note code { background: #f1f1f1; padding: 1px 5px; border-radius: 4px; }
+  footer { margin-top: 34px; color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<h1>Internship Tracking System</h1>
+<p class="sub">Enhanced Entity-Relationship Diagram (EERD) &middot; database <strong>internship_tracking_system</strong></p>
+
+<div class="legend">
+  <span><strong>PK</strong> Primary key</span>
+  <span><strong>FK</strong> Foreign key</span>
+  <span><strong>UK</strong> Unique key</span>
+  <span>||&mdash;o{ &nbsp;one-to-zero-or-many</span>
+  <span>||&mdash;o| &nbsp;one-to-zero-or-one</span>
+  <span>||&mdash;o{ &nbsp;crow's-foot = "many"</span>
+</div>
+
+<h2>1. Entity-Relationship Diagram</h2>
+<pre class="mermaid">
+erDiagram
+    USERS {
+        bigint id PK
+        varchar username UK
+        varchar full_name
+        varchar email UK
+        varchar avatar
+        varchar password_hash
+        enum role "student|supervisor|coordinator"
+        enum status
+        timestamp created_at
+        timestamp updated_at
+    }
+    PASSWORD_RESETS {
+        bigint id PK
+        bigint user_id FK
+        char token_hash UK
+        datetime expires_at
+        timestamp created_at
+    }
+    STUDENT_PROFILES {
+        bigint id PK
+        bigint user_id FK,UK
+        varchar student_number UK
+        varchar course
+        varchar year_level
+        varchar phone
+        varchar address
+        char attendance_token UK
+        timestamp created_at
+    }
+    COMPANIES {
+        bigint id PK
+        varchar name
+        varchar address
+        varchar contact_person
+        varchar contact_email
+        varchar contact_phone
+        enum status
+        timestamp created_at
+    }
+    SUPERVISORS {
+        bigint id PK
+        bigint user_id FK,UK
+        bigint company_id FK
+        varchar job_title
+    }
+    INTERNSHIP_PLACEMENTS {
+        bigint id PK
+        bigint student_id FK
+        bigint company_id FK
+        bigint supervisor_id FK
+        date start_date
+        date end_date
+        decimal required_hours
+        enum status
+        tinyint archived
+        timestamp created_at
+    }
+    REQUIREMENTS {
+        bigint id PK
+        varchar title
+        text description
+        date due_date
+        varchar allowed_extensions
+        int max_file_bytes
+        tinyint active
+        tinyint archived
+        timestamp created_at
+    }
+    DOCUMENT_SUBMISSIONS {
+        bigint id PK
+        bigint requirement_id FK
+        bigint student_id FK
+        varchar stored_name
+        varchar original_name
+        varchar mime_type
+        int file_size
+        enum status
+        bigint reviewer_id FK
+        varchar reviewer_remarks
+        timestamp submitted_at
+        datetime reviewed_at
+    }
+    ATTENDANCE_RECORDS {
+        bigint id PK
+        bigint placement_id FK
+        bigint student_id FK
+        datetime time_in
+        datetime time_out
+        decimal rendered_hours
+        enum status
+        bigint verified_by FK
+        datetime verified_at
+        varchar correction_reason
+        bigint corrected_by FK
+        datetime corrected_at
+        varchar flagged_reason
+        timestamp created_at
+    }
+    EVALUATION_CRITERIA {
+        bigint id PK
+        varchar name UK
+        decimal weight
+        tinyint active
+    }
+    EVALUATIONS {
+        bigint id PK
+        bigint placement_id FK
+        bigint student_id FK
+        bigint supervisor_id FK
+        text comments
+        tinyint released
+        timestamp evaluated_at
+    }
+    EVALUATION_SCORES {
+        bigint evaluation_id PK,FK
+        bigint criteria_id PK,FK
+        tinyint rating
+    }
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        varchar title
+        varchar body
+        datetime read_at
+        timestamp created_at
+    }
+    ANNOUNCEMENTS {
+        bigint id PK
+        varchar title
+        text body
+        enum audience
+        bigint created_by FK
+        timestamp created_at
+    }
+    AUDIT_LOGS {
+        bigint id PK
+        bigint user_id FK
+        varchar action
+        varchar details
+        varchar ip_address
+        timestamp created_at
+    }
+
+    USERS ||--o| STUDENT_PROFILES : "student profile"
+    USERS ||--o| SUPERVISORS : "supervisor profile"
+    USERS ||--o{ PASSWORD_RESETS : "requests"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    USERS ||--o{ ANNOUNCEMENTS : "publishes"
+    USERS ||--o{ AUDIT_LOGS : "performs"
+    USERS ||--o{ DOCUMENT_SUBMISSIONS : "reviews"
+    USERS ||--o{ ATTENDANCE_RECORDS : "verifies"
+    USERS ||--o{ ATTENDANCE_RECORDS : "corrects"
+    COMPANIES ||--o{ SUPERVISORS : "employs"
+    COMPANIES ||--o{ INTERNSHIP_PLACEMENTS : "hosts"
+    STUDENT_PROFILES ||--o{ INTERNSHIP_PLACEMENTS : "assigned to"
+    SUPERVISORS ||--o{ INTERNSHIP_PLACEMENTS : "supervises"
+    STUDENT_PROFILES ||--o{ DOCUMENT_SUBMISSIONS : "submits"
+    REQUIREMENTS ||--o{ DOCUMENT_SUBMISSIONS : "requires"
+    INTERNSHIP_PLACEMENTS ||--o{ ATTENDANCE_RECORDS : "records"
+    STUDENT_PROFILES ||--o{ ATTENDANCE_RECORDS : "attends"
+    INTERNSHIP_PLACEMENTS ||--o{ EVALUATIONS : "evaluated in"
+    STUDENT_PROFILES ||--o{ EVALUATIONS : "receives"
+    SUPERVISORS ||--o{ EVALUATIONS : "writes"
+    EVALUATIONS ||--o{ EVALUATION_SCORES : "has"
+    EVALUATION_CRITERIA ||--o{ EVALUATION_SCORES : "applied to"
+</pre>
+
+<h2>2. Specialization / Generalization (ISA)</h2>
+<pre class="mermaid">
+flowchart TD
+    U["USERS<br/>(superclass)<br/>discriminator: role"]
+    D(("d"))
+    ST["STUDENT_PROFILES<br/><i>role = student</i>"]
+    SU["SUPERVISORS<br/><i>role = supervisor</i>"]
+    CO["COORDINATOR<br/><i>role = coordinator</i><br/>(no separate table)"]
+    U --- D
+    D --- ST
+    D --- SU
+    D --- CO
+</pre>
+<div class="note">
+  <strong>Specialization:</strong> <code>USERS</code> is specialized into <code>STUDENT_PROFILES</code> and
+  <code>SUPERVISORS</code>. The specialization is <strong>disjoint</strong> (a user has exactly one
+  <code>role</code>) and <strong>partial</strong>, because a coordinator is a <code>USERS</code> row with
+  <code>role = 'coordinator'</code> and no separate subtype table. The discriminator attribute is
+  <code>USERS.role</code>.
+</div>
+
+<h2>3. Relationship summary (cardinality)</h2>
+<div class="note">
+  <ul>
+    <li><code>USERS</code> (1) &rarr; (0..1) <code>STUDENT_PROFILES</code> &mdash; a user may have a student profile.</li>
+    <li><code>USERS</code> (1) &rarr; (0..1) <code>SUPERVISORS</code> &mdash; a user may have a supervisor profile.</li>
+    <li><code>COMPANIES</code> (1) &rarr; (0..N) <code>SUPERVISORS</code>, <code>INTERNSHIP_PLACEMENTS</code>.</li>
+    <li><code>STUDENT_PROFILES</code> (1) &rarr; (0..N) <code>INTERNSHIP_PLACEMENTS</code>, <code>DOCUMENT_SUBMISSIONS</code>, <code>ATTENDANCE_RECORDS</code>, <code>EVALUATIONS</code>.</li>
+    <li><code>SUPERVISORS</code> (1) &rarr; (0..N) <code>INTERNSHIP_PLACEMENTS</code>, <code>EVALUATIONS</code>.</li>
+    <li><code>REQUIREMENTS</code> (1) &rarr; (0..N) <code>DOCUMENT_SUBMISSIONS</code>.</li>
+    <li><code>INTERNSHIP_PLACEMENTS</code> (1) &rarr; (0..N) <code>ATTENDANCE_RECORDS</code>, <code>EVALUATIONS</code>.</li>
+    <li><code>EVALUATIONS</code> (1) &rarr; (1..N) <code>EVALUATION_SCORES</code>; <code>EVALUATION_CRITERIA</code> (1) &rarr; (0..N) <code>EVALUATION_SCORES</code> (M:N resolved by the composite-key bridge).</li>
+    <li><code>USERS</code> (1) &rarr; (0..N) <code>NOTIFICATIONS</code>, <code>ANNOUNCEMENTS</code>, <code>AUDIT_LOGS</code>, <code>PASSWORD_RESETS</code>.</li>
+  </ul>
+</div>
+
+<footer>Internship Tracking System &middot; Generated from <code>database.sql</code> (MariaDB 10.4 / MySQL).</footer>
+
+<script src="mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'loose', er: { useMaxWidth: true } });
+</script>
+</body>
+</html>

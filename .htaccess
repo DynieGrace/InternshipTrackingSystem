@@ -1,0 +1,11 @@
+# Internship Tracking System - Apache configuration
+Options -Indexes
+DirectoryIndex index.php index.html
+
+# Block access to source-control metadata and documentation/backups.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^\.git(?:/|$) - [F,L]
+  RewriteRule ^(README\.md|database\.sql) - [F,L]
+  RewriteRule ^(config|includes|storage)(?:/|$) - [F,L]
+</IfModule>
