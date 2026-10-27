@@ -314,50 +314,57 @@ document.addEventListener("DOMContentLoaded", () => {
       loadImage(data.logo || ""),
     ]);
 
+    // Interface palette: orange, black, white only.
+    const ORANGE = "#ff7300";
+    const ORANGE_DEEP = "#e86500";
+    const BLACK = "#10141c";
+    const WHITE = "#ffffff";
+
     ctx.save();
     roundRectPath(ctx, 0, 0, W, H, 20);
     ctx.clip();
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = WHITE;
     ctx.fillRect(0, 0, W, H);
 
     /* Header band */
-    const band = ctx.createLinearGradient(0, 0, W, 116);
-    band.addColorStop(0, "#123b63");
-    band.addColorStop(1, "#0c2947");
-    ctx.fillStyle = band;
-    ctx.fillRect(0, 0, W, 116);
+    ctx.fillStyle = BLACK;
+    ctx.fillRect(0, 0, W, 112);
+    ctx.fillStyle = ORANGE;
+    ctx.fillRect(0, 112, W, 4);
 
     if (logo) {
       ctx.save();
-      roundRectPath(ctx, 30, 30, 56, 56, 14);
+      ctx.beginPath();
+      ctx.arc(58, 56, 28, 0, Math.PI * 2);
       ctx.clip();
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(30, 30, 56, 56);
-      ctx.drawImage(logo, 34, 34, 48, 48);
+      ctx.fillStyle = WHITE;
+      ctx.fillRect(30, 28, 56, 56);
+      ctx.drawImage(logo, 34, 32, 48, 48);
       ctx.restore();
     } else {
-      ctx.fillStyle = "#ffffff";
-      roundRectPath(ctx, 30, 30, 56, 56, 14);
+      ctx.fillStyle = ORANGE;
+      ctx.beginPath();
+      ctx.arc(58, 56, 28, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = "#123b63";
+      ctx.fillStyle = BLACK;
       ctx.font = `800 18px ${headFamily}`;
       ctx.textAlign = "center";
-      ctx.fillText("ITS", 58, 66);
+      ctx.fillText("ITS", 58, 63);
       ctx.textAlign = "left";
     }
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = WHITE;
     ctx.font = `800 22px ${headFamily}`;
     ctx.fillText("InternTrack", 102, 52);
-    ctx.fillStyle = "#b9d2e6";
+    ctx.fillStyle = ORANGE;
     ctx.font = `700 10px ${family}`;
     ctx.fillText("STUDENT INTERN IDENTIFICATION", 103, 72);
 
     ctx.textAlign = "right";
-    ctx.fillStyle = "#cfe2f2";
+    ctx.fillStyle = ORANGE;
     ctx.font = `700 10px ${family}`;
     ctx.fillText(`${course} · ${year}`.toUpperCase(), W - 32, 48);
-    ctx.fillStyle = "#8fb6d4";
+    ctx.fillStyle = WHITE;
     ctx.font = `600 10px ${family}`;
     ctx.fillText("INTERNSHIP TRACKING SYSTEM", W - 32, 68);
     ctx.textAlign = "left";
@@ -366,7 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.save();
     roundRectPath(ctx, 44, 146, 170, 200, 12);
     ctx.clip();
-    ctx.fillStyle = "#f2f6fa";
+    ctx.fillStyle = WHITE;
     ctx.fillRect(44, 146, 170, 200);
     if (avatar) {
       const ratio = Math.max(170 / avatar.width, 200 / avatar.height);
@@ -380,26 +387,26 @@ document.addEventListener("DOMContentLoaded", () => {
         drawHeight
       );
     } else {
-      ctx.fillStyle = "#8fa8c0";
+      ctx.fillStyle = ORANGE;
       ctx.font = `800 46px ${headFamily}`;
       ctx.textAlign = "center";
       ctx.fillText(name.trim().slice(0, 2).toUpperCase(), 129, 258);
       ctx.textAlign = "left";
     }
     ctx.restore();
-    ctx.strokeStyle = "#dfe7ef";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = BLACK;
+    ctx.lineWidth = 2;
     roundRectPath(ctx, 44, 146, 170, 200, 12);
     ctx.stroke();
 
     /* Identity details */
     const x = 244;
-    ctx.fillStyle = "#7b8da0";
+    ctx.fillStyle = ORANGE_DEEP;
     ctx.font = `800 10px ${family}`;
     ctx.fillText("STUDENT INTERN", x, 166);
 
     setFittedFont(ctx, name, 420, 30, 800, headFamily);
-    ctx.fillStyle = "#16283c";
+    ctx.fillStyle = BLACK;
     ctx.fillText(name, x, 200);
 
     const facts = [
@@ -410,11 +417,11 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     let y = 238;
     facts.forEach(([label, value]) => {
-      ctx.fillStyle = "#7b8da0";
-      ctx.font = `700 9px ${family}`;
+      ctx.fillStyle = ORANGE_DEEP;
+      ctx.font = `800 9px ${family}`;
       ctx.fillText(label, x, y);
       setFittedFont(ctx, String(value), 400, 14, 600, family);
-      ctx.fillStyle = "#22374d";
+      ctx.fillStyle = BLACK;
       ctx.fillText(String(value), x, y + 16);
       y += 44;
     });
@@ -425,44 +432,43 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.save();
     roundRectPath(ctx, 690, 146, 180, 180, 12);
     ctx.clip();
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = WHITE;
     ctx.fillRect(690, 146, 180, 180);
     if (qrSource) ctx.drawImage(qrSource, 700, 156, 160, 160);
     ctx.restore();
-    ctx.strokeStyle = "#dfe7ef";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = BLACK;
+    ctx.lineWidth = 2;
     roundRectPath(ctx, 690, 146, 180, 180, 12);
     ctx.stroke();
 
     ctx.textAlign = "center";
     setFittedFont(ctx, name, 176, 13, 700, family);
-    ctx.fillStyle = "#16283c";
+    ctx.fillStyle = BLACK;
     ctx.fillText(name, 780, 352);
-    ctx.fillStyle = "#7b8da0";
-    ctx.font = `600 9px ${family}`;
+    ctx.fillStyle = ORANGE_DEEP;
+    ctx.font = `800 9px ${family}`;
     ctx.fillText("SCAN FOR ATTENDANCE", 780, 368);
     ctx.textAlign = "left";
 
     /* Footer */
-    ctx.fillStyle = "#f6f9fc";
+    ctx.fillStyle = BLACK;
     ctx.fillRect(0, 470, W, H - 470);
-    ctx.strokeStyle = "#dfe7ef";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, 470);
-    ctx.lineTo(W, 470);
-    ctx.stroke();
 
-    ctx.fillStyle = "#5e7b96";
+    ctx.fillStyle = WHITE;
     ctx.font = `600 10px ${family}`;
     ctx.fillText(`Valid: ${valid}`, 44, 505);
     if (token) {
-      ctx.fillStyle = "#93a7ba";
+      ctx.fillStyle = ORANGE;
       ctx.font = `600 9px ${family}`;
       ctx.fillText(`TOKEN ${token}`, 44, 524);
     }
 
     ctx.restore();
+
+    ctx.strokeStyle = BLACK;
+    ctx.lineWidth = 2;
+    roundRectPath(ctx, 1, 1, W - 2, H - 2, 19);
+    ctx.stroke();
     return canvas;
   };
 
