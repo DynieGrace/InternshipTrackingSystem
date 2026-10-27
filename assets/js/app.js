@@ -75,8 +75,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const scanStatus = document.querySelector("[data-scan-status]");
   const tokenInput = document.querySelector('.qr-manual input[name="token"]');
   const tokenForm = document.querySelector(".qr-manual");
+  const scanCanvas = document.createElement("canvas");
+  const scanContext = scanCanvas.getContext("2d", { willReadFrequently: true });
   let stream;
   let scanning = false;
+  let detector = null;
+  let detectorFailures = 0;
+
+  // Native BarcodeDetector only exists on some platforms (Android, ChromeOS,
+  // macOS). Windows desktop Chrome/Edge does not have it, so jsQR is used as
+  // an offline fallback that decodes frames drawn on a canvas.
+  if ("BarcodeDetector" in window) {
+    try {
+      detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+    } catch (error) {
+      detector = null;
+    }
+  }
+
+  const setScanStatus = (message) => {
+    if (scanStatus) scanStatus.textContent = message;
+  };
+
+  const resetScanButton = () => {
+    if (startButton) {
+      startButton.disabled = false;
+      startButton.textContent = "Start camera scanner";
+    }
+  };
 
   const stopCamera = () => {
     scanning = false;
@@ -86,47 +112,111 @@ document.addEventListener("DOMContentLoaded", () => {
     if (video) video.srcObject = null;
   };
 
+  // Accept a raw token or a QR that wraps it in a URL/query string.
+  const normalizeToken = (raw) => {
+    const text = String(raw || "").trim();
+    const match = text.match(/[0-9a-f]{64}/i);
+    return match ? match[0] : text;
+  };
+
+  const readFrame = async () => {
+    if (detector) {
+      const codes = await detector.detect(video);
+      return codes.length ? codes[0].rawValue : null;
+    }
+    if (typeof window.jsQR !== "function" || !video.videoWidth || !video.videoHeight) {
+      return null;
+    }
+
+    const maxSide = 720;
+    const scale = Math.min(1, maxSide / Math.max(video.videoWidth, video.videoHeight));
+    scanCanvas.width = Math.round(video.videoWidth * scale);
+    scanCanvas.height = Math.round(video.videoHeight * scale);
+    scanContext.drawImage(video, 0, 0, scanCanvas.width, scanCanvas.height);
+    const frame = scanContext.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
+    const code = window.jsQR(frame.data, frame.width, frame.height, {
+      inversionAttempts: "attemptBoth",
+    });
+    return code ? code.data : null;
+  };
+
   startButton?.addEventListener("click", async () => {
-    if (!navigator.mediaDevices?.getUserMedia || !("BarcodeDetector" in window)) {
-      if (scanStatus) {
-        scanStatus.textContent = "This browser cannot scan QR codes with its camera. Enter the coordinator's token manually instead.";
-      }
+    if (scanning) {
+      stopCamera();
+      resetScanButton();
+      setScanStatus("Scanner stopped.");
       return;
     }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setScanStatus("This browser cannot open the camera. Enter the student's token manually instead.");
+      return;
+    }
+    if (!detector && typeof window.jsQR !== "function") {
+      setScanStatus("The QR decoder did not load. Reload the page or enter the student's token manually.");
+      return;
+    }
+
+    startButton.disabled = true;
     try {
-      const detector = new BarcodeDetector({ formats: ["qr_code"] });
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
       video.srcObject = stream;
       video.classList.add("active");
       await video.play();
       scanning = true;
-      if (scanStatus) scanStatus.textContent = "Camera active. Hold the QR code inside the video frame.";
+      startButton.disabled = false;
+      startButton.textContent = "Stop camera";
+      setScanStatus("Camera active. Hold the QR code inside the video frame.");
 
       const scan = async () => {
         if (!scanning) return;
         try {
-          const codes = await detector.detect(video);
-          if (codes.length && codes[0].rawValue) {
-            tokenInput.value = codes[0].rawValue;
-            if (scanStatus) scanStatus.textContent = "QR code read. Submitting attendance for server validation.";
+          const raw = await readFrame();
+          const token = raw ? normalizeToken(raw) : "";
+          if (token) {
+            tokenInput.value = token;
+            setScanStatus("QR code read. Recording attendance…");
             stopCamera();
+            resetScanButton();
             tokenForm.requestSubmit();
             return;
           }
         } catch (error) {
-          if (scanStatus) scanStatus.textContent = "The QR code could not be read. Try again or enter the token manually.";
-          stopCamera();
-          return;
+          // A bad frame is normal, but a detector that keeps failing (some
+          // Windows builds expose the API without a working backend) is
+          // dropped so the offline jsQR decoder takes over.
+          if (detector) {
+            detectorFailures += 1;
+            if (detectorFailures >= 3) {
+              detector = null;
+              setScanStatus("Native detector unavailable. Using the offline QR decoder…");
+            }
+          }
         }
-        window.setTimeout(scan, 300);
+        window.setTimeout(scan, 180);
       };
       scan();
     } catch (error) {
-      if (scanStatus) scanStatus.textContent = "Camera access failed or was denied. Enter the coordinator's token manually instead.";
+      const name = error && error.name ? error.name : "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        setScanStatus("Camera permission was blocked. Click the camera icon in the address bar, choose Allow, then start the scanner again.");
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError" || name === "OverconstrainedError") {
+        setScanStatus("No camera was found on this device. Enter the student's token manually instead.");
+      } else if (name === "NotReadableError" || name === "TrackStartError") {
+        setScanStatus("The camera is already in use by another app. Close it and try again, or enter the token manually.");
+      } else {
+        setScanStatus("Camera access failed. Allow the camera for localhost in your browser, then try again.");
+      }
+      console.warn("ITS scanner:", name || error);
       stopCamera();
+      resetScanButton();
     }
   });
 

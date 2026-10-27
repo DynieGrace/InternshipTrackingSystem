@@ -106,7 +106,8 @@ if (!$supervisor) {
     exit;
 }
 
-$scan = form_start('supervisor/attendance.php', ['class' => 'qr-manual'])
+$scan = '<script src="' . e(url('assets/js/jsqr.min.js')) . '"></script>'
+    . form_start('supervisor/attendance.php', ['class' => 'qr-manual'])
     . '<input type="hidden" name="op" value="scan_intern">'
     . '<label>Intern QR token<input name="token" maxlength="64" placeholder="Scan or type the intern token" required></label>'
     . '<button class="button primary">Record attendance</button></form>'

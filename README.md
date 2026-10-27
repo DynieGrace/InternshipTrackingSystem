@@ -230,9 +230,15 @@ and **Company / Authorized Personnel (Supervisor)**.
 - The server decides whether a scan is a time-in or a time-out: if the student
   has an open session it times out, otherwise it starts a new one. Duplicate
   time-ins are prevented.
-- All validation happens on the PHP server. Camera scanning requires a secure
-  context (`localhost` or HTTPS) and browser `BarcodeDetector` support; a
-  manual token field is always available as a fallback.
+- All validation happens on the PHP server. Camera scanning needs a secure
+  context (`localhost` or HTTPS) and camera permission. It uses the browser's
+  native `BarcodeDetector` where available (Android, ChromeOS, macOS) and falls
+  back to the bundled offline decoder `assets/js/jsqr.min.js` on Windows
+  desktop Chrome/Edge, where `BarcodeDetector` is not implemented. A manual
+  token field is always available as a fallback.
+- If the camera does not open, click the camera icon in the address bar, allow
+  access for `localhost`, then press **Start camera scanner** again. Pressing
+  the button while it is scanning stops the camera.
 - Students may still use the manual time in/out fallback if no authorized
   personnel is available, but that record still requires verification.
 - A QR token identifies the account, not physical presence.

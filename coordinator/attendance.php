@@ -111,7 +111,8 @@ if ($scanResult = take_scan_result()) {
 
 // The instructor scans the student's personal QR to record attendance.
 // Students never scan their own code.
-$scan = form_start('coordinator/attendance.php', ['class' => 'qr-manual'])
+$scan = '<script src="' . e(url('assets/js/jsqr.min.js')) . '"></script>'
+    . form_start('coordinator/attendance.php', ['class' => 'qr-manual'])
     . '<input type="hidden" name="op" value="scan_student_qr">'
     . '<label>Student QR token<input name="token" maxlength="64" placeholder="Scan or type the student token" required></label>'
     . '<button class="button primary">Record attendance</button></form>'

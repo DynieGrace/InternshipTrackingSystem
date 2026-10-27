@@ -11,7 +11,7 @@ declare(strict_types=1);
 define('APP_ROOT', dirname(__DIR__));
 define('APP_NAME', 'Internship Tracking System');
 define('APP_SHORT_NAME', 'InternTrack');
-define('APP_VERSION', '1.0.3');
+define('APP_VERSION', '1.0.5');
 
 /* ------------------------------------------------------------------ *
  * Database connection settings (XAMPP defaults).
