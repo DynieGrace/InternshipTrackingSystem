@@ -27,16 +27,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token = post_string('token', 64);
             $student = query_one(
                 $db,
-                "SELECT sp.id, sp.attendance_token
-                FROM student_profiles sp
-                JOIN internship_placements i ON i.student_id = sp.id AND i.status = 'active'
-                WHERE sp.attendance_token = ? AND i.supervisor_id = ? LIMIT 1",
-                [$token, (int)$supervisor['id']]
+                'SELECT sp.id, sp.student_number, u.full_name
+                 FROM student_profiles sp JOIN users u ON u.id = sp.user_id
+                 WHERE sp.attendance_token = ? LIMIT 1',
+                [$token]
             );
             if (!$student) {
-                throw new InvalidArgumentException('That QR code does not belong to an intern assigned to you.');
+                throw new InvalidArgumentException('That QR code is not recognised. Ask the intern to show their attendance ID.');
             }
             $placement = active_placement($db, (int)$student['id']);
+            if (!$placement) {
+                remember_scan_result(
+                    (int)$student['id'],
+                    'No active internship placement for ' . $student['full_name']
+                        . ' (' . $student['student_number'] . '). Your coordinator must assign a placement first.',
+                    'error'
+                );
+                redirect('supervisor/attendance.php');
+            }
+            if ((int)($placement['supervisor_id'] ?? 0) !== (int)$supervisor['id']) {
+                remember_scan_result(
+                    (int)$student['id'],
+                    $student['full_name'] . ' is not one of your assigned interns, so attendance was not recorded.',
+                    'error'
+                );
+                redirect('supervisor/attendance.php');
+            }
             $open = query_one($db, 'SELECT id FROM attendance_records WHERE student_id = ? AND time_out IS NULL ORDER BY id DESC LIMIT 1', [(int)$student['id']]);
 
             if ($open) {

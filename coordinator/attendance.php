@@ -34,7 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $placement = active_placement($db, (int)$student['id']);
             if (!$placement) {
-                throw new InvalidArgumentException('That student has no active placement.');
+                // Still show the ID card, but explain why nothing was recorded.
+                remember_scan_result(
+                    (int)$student['id'],
+                    'No active internship placement for ' . $student['full_name']
+                        . ' (' . $student['student_number'] . '). Assign a placement first, then scan again.',
+                    'error'
+                );
+                redirect('coordinator/attendance.php');
             }
 
             $open = query_one($db, 'SELECT id FROM attendance_records WHERE student_id = ? AND time_out IS NULL ORDER BY id DESC LIMIT 1', [(int)$student['id']]);
