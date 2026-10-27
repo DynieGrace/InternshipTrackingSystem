@@ -16,9 +16,6 @@ if (!$db instanceof PDO) {
 $user = require_role(['student']);
 $student = student_profile($db, (int)$user['id']);
 
-// Ensure the student has a personal attendance QR token to display.
-$student = $student ? ensure_attendance_token($db, $student) : null;
-
 /**
  * Record a time-in or time-out for the signed-in student. All validation
  * happens here on the server; students can never edit their own hours.
@@ -113,11 +110,6 @@ echo stat_card('Pending hours', format_hours($totals['pending']), 'Awaiting veri
 echo stat_card('Hours remaining', format_hours($remaining), format_hours($required) . ' required', '↗');
 echo stat_card('Progress', number_format($percent, 1) . '%', 'Of required hours', '▤');
 echo '</div>';
-
-// The student displays this QR; the instructor (coordinator) or the
-// company supervisor / authorized personnel scans it to record attendance.
-echo panel('My attendance QR code', 'Present this to authorized personnel or your instructor to record your attendance.',
-    attendance_qr_panel($student));
 
 $clockForm = $placement
     ? form_start('student/attendance.php')

@@ -53,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = 'Time-in recorded for ' . $student['full_name'] . '.';
             }
             record_activity($db, (int)$user['id'], 'coordinator_qr_attendance', 'student #' . (int)$student['id']);
-            flash_redirect('coordinator/attendance.php', $message);
+            remember_scan_result((int)$student['id'], $message);
+            redirect('coordinator/attendance.php');
         }
 
         if ($op === 'review_attendance') {
@@ -103,6 +104,11 @@ $title = 'Attendance';
 $active = 'attendance';
 require __DIR__ . '/../includes/header.php';
 
+// A successful scan shows the student's ID card in a popup.
+if ($scanResult = take_scan_result()) {
+    echo scan_result_modal($db, $scanResult);
+}
+
 // The instructor scans the student's personal QR to record attendance.
 // Students never scan their own code.
 $scan = form_start('coordinator/attendance.php', ['class' => 'qr-manual'])
@@ -111,9 +117,9 @@ $scan = form_start('coordinator/attendance.php', ['class' => 'qr-manual'])
     . '<button class="button primary">Record attendance</button></form>'
     . '<div class="scanner"><button class="button secondary" type="button" data-start-scan>Start camera scanner</button>'
     . '<video playsinline muted></video><p class="help-text" data-scan-status>Camera access is requested only after you start the scanner. '
-    . 'A manual token entry is always available. The action times out an open session, or starts a new one.</p></div>';
+    . 'A manual token entry is always available. The student\'s ID card appears after a successful scan.</p></div>';
 
-echo panel('Scan a student\'s attendance QR', 'Scan the QR the student displays (or enter their token). The server records time in or time out.', $scan);
+echo panel('Scan a student\'s attendance QR', 'Scan the QR the student displays (or enter their token). The server records time in or time out and shows their ID.', $scan);
 
 // Filters
 $from = (string)($_GET['from'] ?? '');

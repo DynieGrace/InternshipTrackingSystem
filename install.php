@@ -91,10 +91,13 @@ require __DIR__ . '/includes/auth_header.php';
         <label for="password">Password</label>
         <span class="password-field">
           <input id="password" name="password" type="password" minlength="<?= PASSWORD_MIN_LENGTH ?>" autoComplete="new-password" required>
-          <button class="password-toggle" type="button" data-password-toggle aria-label="Show password">Show</button>
+          <?= password_toggle_button() ?>
         </span>
         <label for="confirm_password">Confirm password</label>
-        <input id="confirm_password" name="confirm_password" type="password" minlength="<?= PASSWORD_MIN_LENGTH ?>" autoComplete="new-password" required>
+        <span class="password-field">
+          <input id="confirm_password" name="confirm_password" type="password" minlength="<?= PASSWORD_MIN_LENGTH ?>" autoComplete="new-password" required>
+          <?= password_toggle_button() ?>
+        </span>
         <button class="button primary full" type="submit">Create coordinator account</button>
       </form>
     <?php endif; ?>

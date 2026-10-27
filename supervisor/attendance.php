@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $student = query_one(
                 $db,
                 "SELECT sp.id, sp.attendance_token
-                 FROM student_profiles sp
-                 JOIN internship_placements i ON i.student_id = sp.id AND i.status = 'active'
-                 WHERE sp.attendance_token = ? AND i.supervisor_id = ? LIMIT 1",
+                FROM student_profiles sp
+                JOIN internship_placements i ON i.student_id = sp.id AND i.status = 'active'
+                WHERE sp.attendance_token = ? AND i.supervisor_id = ? LIMIT 1",
                 [$token, (int)$supervisor['id']]
             );
             if (!$student) {
@@ -42,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($open) {
                 $db->prepare(
                     "UPDATE attendance_records
-                     SET time_out = NOW(),
-                         rendered_hours = ROUND(GREATEST(0, TIMESTAMPDIFF(SECOND, time_in, NOW()) / 3600), 2),
-                         status = 'pending'
-                     WHERE id = ? AND time_out IS NULL"
+                    SET time_out = NOW(),
+                        rendered_hours = ROUND(GREATEST(0, TIMESTAMPDIFF(SECOND, time_in, NOW()) / 3600), 2),
+                        status = 'pending'
+                    WHERE id = ? AND time_out IS NULL"
                 )->execute([(int)$open['id']]);
                 $message = 'Time-out recorded for the intern. Hours await verification.';
             } else {
@@ -54,7 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = 'Time-in recorded for the intern.';
             }
             record_activity($db, (int)$user['id'], 'supervisor_qr_attendance', 'student #' . (int)$student['id']);
-            flash_redirect('supervisor/attendance.php', $message);
+            remember_scan_result((int)$student['id'], $message);
+            redirect('supervisor/attendance.php');
         }
 
         if ($op === 'review_attendance') {
@@ -66,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $record = query_one(
                 $db,
                 "SELECT a.id FROM attendance_records a
-                 JOIN internship_placements i ON i.id = a.placement_id
-                 WHERE a.id = ? AND i.supervisor_id = ? AND a.time_out IS NOT NULL",
+                JOIN internship_placements i ON i.id = a.placement_id
+                WHERE a.id = ? AND i.supervisor_id = ? AND a.time_out IS NOT NULL",
                 [$id, (int)$supervisor['id']]
             );
             if (!$record) {
@@ -93,6 +94,11 @@ $title = 'Attendance Review';
 $active = 'attendance';
 require __DIR__ . '/../includes/header.php';
 
+// A successful scan shows the intern's ID card in a popup.
+if ($scanResult = take_scan_result()) {
+    echo scan_result_modal($db, $scanResult);
+}
+
 if (!$supervisor) {
     echo panel('Attendance review', 'Supervisor profile missing.',
         '<div class="empty-state">Your supervisor profile is not set up yet.</div>');
@@ -115,12 +121,12 @@ $records = query_all(
     $db,
     "SELECT a.id, a.time_in, a.time_out, a.rendered_hours, a.status, a.correction_reason,
             sp.student_number, u.full_name
-     FROM attendance_records a
-     JOIN internship_placements i ON i.id = a.placement_id
-     JOIN student_profiles sp ON sp.id = a.student_id
-     JOIN users u ON u.id = sp.user_id
-     WHERE i.supervisor_id = ?
-     ORDER BY a.time_in DESC LIMIT 200",
+    FROM attendance_records a
+    JOIN internship_placements i ON i.id = a.placement_id
+    JOIN student_profiles sp ON sp.id = a.student_id
+    JOIN users u ON u.id = sp.user_id
+    WHERE i.supervisor_id = ?
+    ORDER BY a.time_in DESC LIMIT 200",
     [(int)$supervisor['id']]
 );
 

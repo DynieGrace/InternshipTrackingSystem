@@ -16,8 +16,8 @@ $authSubtitle = $authSubtitle ?? 'Sign in to your workspace';
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#F97316">
   <title><?= e($authTitle) ?> | <?= e(APP_NAME) ?></title>
-  <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>">
-  <script src="<?= e(url('assets/js/app.js')) ?>" defer></script>
+  <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>?v=<?= e(APP_VERSION) ?>">
+  <script src="<?= e(url('assets/js/app.js')) ?>?v=<?= e(APP_VERSION) ?>" defer></script>
 </head>
 <body class="auth-page">
 <main class="auth-layout">

@@ -75,13 +75,13 @@ require __DIR__ . '/includes/auth_header.php';
         <label>Password
           <span class="password-field">
             <input name="password" type="password" minlength="<?= PASSWORD_MIN_LENGTH ?>" autocomplete="new-password" required>
-            <button class="password-toggle" type="button" data-password-toggle aria-label="Show password">Show</button>
+            <?= password_toggle_button() ?>
           </span>
         </label>
         <label>Confirm password
           <span class="password-field">
             <input name="confirm_password" type="password" minlength="<?= PASSWORD_MIN_LENGTH ?>" autocomplete="new-password" required>
-            <button class="password-toggle" type="button" data-password-toggle aria-label="Show password">Show</button>
+            <?= password_toggle_button() ?>
           </span>
         </label>
       </div>

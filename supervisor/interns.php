@@ -30,12 +30,12 @@ $interns = query_all(
     "SELECT i.id AS placement_id, i.start_date, i.end_date, i.required_hours, i.status,
             sp.id AS student_id, sp.student_number, sp.course, sp.year_level, sp.phone,
             u.full_name, u.email, c.name AS company
-     FROM internship_placements i
-     JOIN student_profiles sp ON sp.id = i.student_id
-     JOIN users u ON u.id = sp.user_id
-     JOIN companies c ON c.id = i.company_id
-     WHERE i.supervisor_id = ? AND i.status = 'active'
-     ORDER BY u.full_name",
+    FROM internship_placements i
+    JOIN student_profiles sp ON sp.id = i.student_id
+    JOIN users u ON u.id = sp.user_id
+    JOIN companies c ON c.id = i.company_id
+    WHERE i.supervisor_id = ? AND i.status = 'active'
+    ORDER BY u.full_name",
     [(int)$supervisor['id']]
 );
 

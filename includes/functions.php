@@ -16,6 +16,17 @@ function e(mixed $value): string
     return htmlspecialchars((string)($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function password_toggle_button(): string
+{
+    return '<button class="password-toggle" type="button" data-password-toggle aria-label="Show password" aria-pressed="false">'
+        . '<svg data-password-icon="show" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+        . '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle>'
+        . '</svg><svg data-password-icon="hide" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" hidden>'
+        . '<path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>'
+        . '<path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a13.6 13.6 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7c1.4 0 2.7-.3 3.8-.8"></path>'
+        . '</svg></button>';
+}
+
 /* ------------------------------------------------------------------ *
  * CSRF protection
  * ------------------------------------------------------------------ */
@@ -272,20 +283,164 @@ function ensure_attendance_token(PDO $db, array $student): array
 }
 
 /**
- * Render a student's personal attendance QR. The student displays it; the
- * instructor or authorized personnel scans it.
+ * Load everything the ID card needs: the student profile, the owning user
+ * account and the active placement (company + supervisor).
  */
-function attendance_qr_panel(array $student, string $elementId = 'my-qr'): string
+function student_identity(PDO $db, int $studentId): ?array
 {
-    $token = (string)($student['attendance_token'] ?? '');
-    return '<div class="qr-created"><div id="' . e($elementId) . '" data-token="' . e($token) . '"></div>'
-        . '<div><p><strong>Show this QR code</strong> to your <strong>instructor (coordinator)</strong> or to your '
-        . '<strong>company supervisor / authorized personnel</strong>. They scan it to record your time in and time out. '
-        . 'You do not scan this yourself. If the image does not load, give them the token below.</p>'
-        . '<code>' . e($token) . '</code></div></div>'
-        . '<script src="' . e(url('assets/js/qrcode.min.js')) . '"></script>'
-        . '<script>document.addEventListener("DOMContentLoaded",function(){var b=document.getElementById("' . e($elementId) . '");'
-        . 'if(b&&window.QRCode){new QRCode(b,{text:b.dataset.token,width:190,height:190});}});</script>';
+    $student = query_one(
+        $db,
+        'SELECT sp.*, u.id AS user_id, u.full_name, u.email, u.avatar
+         FROM student_profiles sp
+         JOIN users u ON u.id = sp.user_id
+         WHERE sp.id = ?',
+        [$studentId]
+    );
+    if (!$student) {
+        return null;
+    }
+
+    $student = ensure_attendance_token($db, $student);
+
+    return [
+        'student'   => $student,
+        'placement' => active_placement($db, (int)$student['id']),
+    ];
+}
+
+/** Human readable validity range printed on the ID card. */
+function id_validity_text(?array $placement): string
+{
+    if (!$placement) {
+        return 'No active placement';
+    }
+    $start = format_datetime((string)$placement['start_date'], 'M j, Y');
+    if (empty($placement['end_date'])) {
+        return 'Since ' . $start;
+    }
+    return $start . ' - ' . format_datetime((string)$placement['end_date'], 'M j, Y');
+}
+
+/**
+ * Student intern ID card. The QR encodes the attendance token; the name and
+ * details sit beside it so the card reads like a real school ID. The same
+ * markup is used on the student's MyQR page and in the scan popup, and the
+ * data-* attributes feed the PNG export in assets/js/app.js.
+ */
+function student_id_card(array $identity, array $options = []): string
+{
+    $student    = $identity['student'];
+    $placement  = $identity['placement'] ?? null;
+    $name       = trim((string)($student['full_name'] ?? '')) ?: 'Student Intern';
+    $number     = (string)($student['student_number'] ?? '-');
+    $course     = (string)($student['course'] ?? 'BS Information Technology');
+    $year       = (string)($student['year_level'] ?? '4th Year');
+    $company    = (string)($placement['company'] ?? 'Not yet assigned');
+    $supervisor = (string)($placement['supervisor_name'] ?? 'To be assigned');
+    $valid      = id_validity_text($placement);
+    $token      = (string)($student['attendance_token'] ?? '');
+    $avatar     = !empty($student['avatar'])
+        ? url('avatar.php?id=' . (int)$student['user_id'])
+        : '';
+    $qrId       = (string)($options['qr_id'] ?? ('id-qr-' . (int)$student['id']));
+    $extraClass = (string)($options['class'] ?? '');
+    $initials   = strtoupper(mb_substr($name, 0, 2));
+
+    static $qrScriptLoaded = false;
+    $qrScript = '';
+    if (!$qrScriptLoaded) {
+        $qrScriptLoaded = true;
+        $qrScript = '<script src="' . e(url('assets/js/qrcode.min.js')) . '"></script>';
+    }
+
+    $photo = $avatar !== ''
+        ? '<img class="student-id-photo-img" src="' . e($avatar) . '" alt="' . e($name) . '">'
+        : '<span class="student-id-initials">' . e($initials) . '</span>';
+
+    return $qrScript
+        . '<article class="student-id ' . e($extraClass) . '" data-id-card'
+        . ' data-name="' . e($name) . '"'
+        . ' data-number="' . e($number) . '"'
+        . ' data-course="' . e($course) . '"'
+        . ' data-year="' . e($year) . '"'
+        . ' data-company="' . e($company) . '"'
+        . ' data-supervisor="' . e($supervisor) . '"'
+        . ' data-valid="' . e($valid) . '"'
+        . ' data-token="' . e($token) . '"'
+        . ' data-avatar="' . e($avatar) . '"'
+        . ' data-logo="' . e(url('assets/images/logo.png')) . '">'
+
+        . '<div class="student-id-band">'
+        . '<span class="student-id-mark">ITS</span>'
+        . '<span class="student-id-brand"><strong>InternTrack</strong>'
+        . '<small>Student Intern Identification</small></span>'
+        . '<span class="student-id-tag">' . e($course) . ' &middot; ' . e($year) . '</span>'
+        . '</div>'
+
+        . '<div class="student-id-body">'
+        . '<div class="student-id-photo">' . $photo . '</div>'
+        . '<div class="student-id-info">'
+        . '<p class="student-id-kicker">Student Intern</p>'
+        . '<h3>' . e($name) . '</h3>'
+        . '<ul class="student-id-facts">'
+        . '<li><span>Student No.</span><strong>' . e($number) . '</strong></li>'
+        . '<li><span>Program</span><strong>' . e($course) . ' &middot; ' . e($year) . '</strong></li>'
+        . '<li><span>Company</span><strong>' . e($company) . '</strong></li>'
+        . '<li><span>Supervisor</span><strong>' . e($supervisor) . '</strong></li>'
+        . '</ul></div>'
+        . '<div class="student-id-qr">'
+        . '<div class="student-id-qr-tile"><div id="' . e($qrId) . '" data-qr-token="' . e($token) . '" data-qr-size="160"></div></div>'
+        . '<span class="student-id-qr-copy"><strong>' . e($name) . '</strong>'
+        . '<small>Scan for attendance</small></span>'
+        . '</div></div>'
+
+        . '<div class="student-id-foot">'
+        . '<span>Valid: ' . e($valid) . '</span>'
+        . '<code>' . ($token !== '' ? 'TOKEN ' . e($token) : '') . '</code>'
+        . '</div></article>';
+}
+
+/** Remember the scanned student so the ID card pops up after the redirect. */
+function remember_scan_result(int $studentId, string $message, string $type = 'success'): void
+{
+    $_SESSION['scan_result'] = [
+        'student_id' => $studentId,
+        'message'    => $message,
+        'type'       => $type,
+    ];
+}
+
+/** Take (and clear) the pending scan result. */
+function take_scan_result(): ?array
+{
+    $result = $_SESSION['scan_result'] ?? null;
+    unset($_SESSION['scan_result']);
+
+    return is_array($result) ? $result : null;
+}
+
+/** ID-card popup shown right after a coordinator or supervisor scans a QR. */
+function scan_result_modal(PDO $db, array $result): string
+{
+    $identity = student_identity($db, (int)($result['student_id'] ?? 0));
+    if (!$identity) {
+        return '';
+    }
+
+    $type = in_array($result['type'] ?? '', ['success', 'error'], true) ? $result['type'] : 'success';
+
+    return '<div class="id-modal" data-modal role="dialog" aria-modal="true" aria-label="Student identification">'
+        . '<div class="id-modal-card">'
+        . '<button class="id-modal-close" type="button" data-modal-close aria-label="Close">&times;</button>'
+        . '<div class="notice ' . e($type) . '">' . e((string)($result['message'] ?? '')) . '</div>'
+        . student_id_card($identity, [
+            'qr_id' => 'scan-qr-' . (int)$identity['student']['id'],
+            'class' => 'in-modal',
+        ])
+        . '<div class="id-modal-actions">'
+        . '<button class="button primary" type="button" data-download-id>Download ID card (PNG)</button>'
+        . '<button class="button secondary" type="button" data-modal-close>Close</button>'
+        . '</div></div></div>';
 }
 
 /* ------------------------------------------------------------------ *
@@ -443,7 +598,7 @@ function render_db_setup_page(): never
     ?><!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Database setup required | <?= e(APP_NAME) ?></title>
-<link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>"></head>
+<link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>?v=<?= e(APP_VERSION) ?>"></head>
 <body class="setup-page"><main class="setup-card"><p class="eyebrow"><?= e(strtoupper(APP_SHORT_NAME)) ?></p>
 <h1>Database connection needed</h1>
 <p>Start <strong>MySQL</strong> in the XAMPP Control Panel, then import <code>database.sql</code> using phpMyAdmin.
@@ -460,7 +615,7 @@ function render_error_page(string $title, string $message): never
     ?><!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= e($title) ?> | <?= e(APP_NAME) ?></title>
-<link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>"></head>
+<link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>?v=<?= e(APP_VERSION) ?>"></head>
 <body class="setup-page"><main class="setup-card"><p class="eyebrow"><?= e(strtoupper(APP_SHORT_NAME)) ?></p>
 <h1><?= e($title) ?></h1><p><?= e($message) ?></p>
 <p><a class="button secondary" href="<?= e(url('index.php')) ?>">Return to sign in</a></p></main></body></html><?php

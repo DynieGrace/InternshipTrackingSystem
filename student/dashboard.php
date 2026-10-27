@@ -53,11 +53,6 @@ echo stat_card('Requirements', $approvedReq . ' / ' . $totalReq . ' approved', '
 echo stat_card('Notifications', (string)$unread, 'Unread updates', '◔');
 echo '</div>';
 
-// Attendance QR, shown right after sign-in so it is easy to find.
-$student = ensure_attendance_token($db, $student);
-echo panel('My attendance QR code', 'Show this QR to your instructor or company supervisor to record your attendance.',
-    attendance_qr_panel($student, 'my-qr'));
-
 echo '<section class="panel progress-panel"><div class="panel-title"><div><h2>Internship progress</h2><p>Approved rendered hours divided by the required hours.</p></div><strong>'
     . number_format($percent, 1) . '%</strong></div><div class="progress-track"><span style="width:'
     . number_format($percent, 2, '.', '') . '%"></span></div>'
@@ -108,7 +103,8 @@ echo panel('Latest notifications', 'Recent updates for your workspace.',
     table_html(['Title', 'Details', 'Date'], $noteRows, 'You are all caught up.'));
 
 echo panel('Quick actions', 'Common tasks.', '<div class="action-grid">'
-    . '<a class="action-card" href="' . e(url('student/attendance.php')) . '"><strong>Record attendance</strong><span>Show your QR code to your instructor or supervisor.</span></a>'
+    . '<a class="action-card" href="' . e(url('student/attendance.php')) . '"><strong>Record attendance</strong><span>View your hours and time in or out.</span></a>'
+    . '<a class="action-card" href="' . e(url('student/my_qr.php')) . '"><strong>MyQR</strong><span>Open your personal QR code for your instructor or supervisor.</span></a>'
     . '<a class="action-card" href="' . e(url('student/requirements.php')) . '"><strong>Submit requirements</strong><span>Upload documents for review.</span></a>'
     . '<a class="action-card" href="' . e(url('student/evaluations.php')) . '"><strong>View feedback</strong><span>See released supervisor evaluations.</span></a>'
     . '</div>');

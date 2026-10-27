@@ -84,7 +84,7 @@ require __DIR__ . '/includes/auth_header.php';
       <label for="password">Password</label>
       <span class="password-field">
         <input id="password" name="password" type="password" autocomplete="current-password" required>
-        <button class="password-toggle" type="button" data-password-toggle aria-label="Show password">Show</button>
+        <?= password_toggle_button() ?>
       </span>
 
       <div class="auth-options">

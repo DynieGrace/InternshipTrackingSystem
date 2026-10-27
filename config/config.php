@@ -11,18 +11,14 @@ declare(strict_types=1);
 define('APP_ROOT', dirname(__DIR__));
 define('APP_NAME', 'Internship Tracking System');
 define('APP_SHORT_NAME', 'InternTrack');
-define('APP_VERSION', '1.0.0');
+define('APP_VERSION', '1.0.3');
 
 /* ------------------------------------------------------------------ *
  * Database connection settings (XAMPP defaults).
  * Override with environment variables when your setup differs.
  * ------------------------------------------------------------------ */
 define('DB_HOST', getenv('ITS_DB_HOST') ?: '127.0.0.1');
-// NOTE: on this machine the Windows "MySQL80" service occupies port 3306, so
-// XAMPP's MariaDB (which holds this database) runs on 3307. If you stop the
-// MySQL80 service and start MariaDB on 3306, set this back to '3306' or set
-// the ITS_DB_PORT environment variable.
-define('DB_PORT', getenv('ITS_DB_PORT') ?: '3307');
+define('DB_PORT', getenv('ITS_DB_PORT') ?: '3306');
 define('DB_NAME', getenv('ITS_DB_NAME') ?: 'internship_tracking_system');
 define('DB_USER', getenv('ITS_DB_USER') ?: 'root');
 define('DB_PASS', getenv('ITS_DB_PASSWORD') ?: '');

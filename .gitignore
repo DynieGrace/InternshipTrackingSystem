@@ -1,0 +1,7 @@
+# Runtime uploads: profile photos are user data, not source code.
+uploads/avatars/
+
+# Local/editor noise
+.DS_Store
+Thumbs.db
+*.log

@@ -12,13 +12,13 @@ truth for every record.
 
 ## 1. Technology stack
 
-| Layer     | Technology                                        |
-|-----------|---------------------------------------------------|
-| Frontend  | HTML5, CSS3, JavaScript (vanilla), responsive     |
-| Backend   | PHP 8 (PDO, prepared statements)                  |
-| Database  | MySQL / MariaDB (`internship_tracking_system`)    |
-| Server    | Apache (XAMPP)                                    |
-| QR codes  | `qrcodejs` (display) + `BarcodeDetector` (scan), with a manual-token fallback |
+| Layer    | Technology                                                                    |
+| -------- | ----------------------------------------------------------------------------- |
+| Frontend | HTML5, CSS3, JavaScript (vanilla), responsive                                 |
+| Backend  | PHP 8 (PDO, prepared statements)                                              |
+| Database | MySQL / MariaDB (`internship_tracking_system`)                                |
+| Server   | Apache (XAMPP)                                                                |
+| QR codes | `qrcodejs` (display) + `BarcodeDetector` (scan), with a manual-token fallback |
 
 ---
 
@@ -99,11 +99,10 @@ Internship-Tracking-System/
      only into a development database.
 
 4. **Configure the connection** (only if your setup differs from XAMPP's
-   defaults). The defaults are host `127.0.0.1`, port `3307`, database
+   defaults). The defaults are host `127.0.0.1`, port `3306`, database
    `internship_tracking_system`, user `root`, empty password. To override,
    set environment variables before starting Apache, or edit
    `config/config.php`:
-
    - `ITS_DB_HOST`, `ITS_DB_PORT`, `ITS_DB_NAME`, `ITS_DB_USER`,
      `ITS_DB_PASSWORD`
 
@@ -120,12 +119,12 @@ Internship-Tracking-System/
 
 All sample accounts use the password **`Intern@123`**.
 
-| Role                  | Email / username        |
-|-----------------------|-------------------------|
-| Internship Coordinator| `coordinator`           |
-| Student Intern        | `student01`             |
-| Student Intern        | `student02`             |
-| Company Supervisor    | `supervisor`            |
+| Role                   | Email / username |
+| ---------------------- | ---------------- |
+| Internship Coordinator | `coordinator`    |
+| Student Intern         | `student01`      |
+| Student Intern         | `student02`      |
+| Company Supervisor     | `supervisor`     |
 
 > These are for local development only. Change the passwords, and remove or
 > replace the sample accounts before deploying anywhere others can reach.
@@ -148,9 +147,9 @@ supervisor accounts are always created by an authorized user.
 ## 7. Roles and modules
 
 **Student Intern** - dashboard, profile, placement, requirement uploads,
-attendance (displays their personal QR for authorized personnel to scan;
-manual time in/out as a fallback), evaluations, notifications, progress and
-rendered hours.
+attendance, a separate **MyQR** page for displaying their personal QR to
+authorized personnel, manual time in/out as a fallback, evaluations,
+notifications, progress and rendered hours.
 
 **Internship Coordinator** - dashboard counts, student records, companies,
 supervisors, placements, requirements, document review, attendance
@@ -181,7 +180,7 @@ Generation, User/Role Management, and Login/Registration/Logout.**
   `approved ÷ required`, shown as a percentage and a progress bar, capped at
   100% while the approved total is unchanged.
 - Coordinators can correct a record with a reason; the correction returns the
-  record to *pending* and is written to the **audit log**. Students can never
+  record to _pending_ and is written to the **audit log**. Students can never
   edit their own hours.
 
 ---
@@ -214,7 +213,16 @@ There are three user types: **Instructor (Coordinator)**, **Intern Student**,
 and **Company / Authorized Personnel (Supervisor)**.
 
 - Each student has a **personal QR code** (a unique attendance token), shown
-  on their Attendance page. **Students display the code; they do not scan it.**
+  on their separate **MyQR** page. **Students display the code; they do not scan it.**
+- The MyQR page renders a **student ID card**: programme header, profile photo,
+  full name, student number, programme/year, company, supervisor, placement
+  validity and the QR with the student's name printed beside it.
+- The card can be **downloaded as a PNG** (`StudentID-<student number>.png`) so
+  the student can keep it on their phone. The PNG is composed in the browser
+  from the same data, so no server-side image library is required.
+- After a successful scan, the coordinator or supervisor sees the student's
+  **ID card in a popup**, together with the recorded action ("Time-in recorded
+  for ..."), and can download the same card from there.
 - The **Instructor (Coordinator)** scans the student's QR from the Attendance
   page (camera or manual token) to record time in / time out.
 - The **Company Supervisor / Authorized Personnel** scans the QR of interns
@@ -247,14 +255,14 @@ and **Company / Authorized Personnel (Supervisor)**.
 
 ## 12. Troubleshooting
 
-| Problem | Fix |
-|---|---|
-| "Database connection needed" | Start the XAMPP **MySQL/MariaDB** (in this setup it runs on port **3307** because the Windows `MySQL80` service occupies 3306), import `database.sql`, and check `config/config.php`. |
-| Apache won't start | Another app is using port 80/443; check the XAMPP logs. |
-| Uploads fail | Check PHP `upload_max_filesize`/`post_max_size` in `C:\xampp\php\php.ini`, restart Apache, and ensure `uploads/` is writable. |
-| Camera QR unavailable | Use `http://localhost/...` or HTTPS, grant camera access, or use the manual token field. |
-| Blank page / server error | Check the Apache/PHP error log in the XAMPP Control Panel. |
-| Testing the code | Lint with `C:\xampp\php\php.exe -l <file>`; run locally with `php -S 127.0.0.1:8899 -t <project>`. |
+| Problem                      | Fix                                                                                                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Database connection needed" | Start the XAMPP **MySQL/MariaDB**, import `database.sql`, and ensure its port matches `DB_PORT` in `config/config.php` (default **3306**). |
+| Apache won't start           | Another app is using port 80/443; check the XAMPP logs.                                                                                                                               |
+| Uploads fail                 | Check PHP `upload_max_filesize`/`post_max_size` in `C:\xampp\php\php.ini`, restart Apache, and ensure `uploads/` is writable.                                                         |
+| Camera QR unavailable        | Use `http://localhost/...` or HTTPS, grant camera access, or use the manual token field.                                                                                              |
+| Blank page / server error    | Check the Apache/PHP error log in the XAMPP Control Panel.                                                                                                                            |
+| Testing the code             | Lint with `C:\xampp\php\php.exe -l <file>`; run locally with `php -S 127.0.0.1:8899 -t <project>`.                                                                                    |
 
 ---
 
@@ -267,3 +275,51 @@ and **Company / Authorized Personnel (Supervisor)**.
   saved to `D:\maamCindy\_mysql-data-backup-<timestamp>`.
 - The former single-file application and its `internship_db` database were
   backed up to `D:\maamCindy\_ITS-backup-<timestamp>` before restructuring.
+
+---
+
+## 14. Database safety (fixes applied 2026-10-27)
+
+The database had been corrupted twice before. Root cause: every time MySQL was
+stopped, `C:\xampp\mysql_stop.bat` (and the "Stop all" button, via
+`killprocess.bat`) ran `taskkill /F mysqld.exe`. A forced kill leaves Aria's
+system tables (`mysql.db`, `mysql.roles_mapping`) half-written, and on the next
+start the server refuses to boot with "Table is marked as crashed".
+
+What was fixed:
+
+1. **Graceful shutdown.** `mysql_stop.bat` now runs `mysqladmin shutdown` and
+   waits for the process to exit. `killprocess.bat` does the same before it
+   ever falls back to a forced kill. Original files are kept as
+   `mysql_stop.bat.original-forcekill` and `killprocess.bat.original`.
+2. **Corrupt system tables rebuilt.** `mysql.db` and `mysql.roles_mapping` were
+   replaced with clean copies generated by `mysql_install_db.exe`; all 15
+   application tables and the remaining `mysql` tables verify as `OK`.
+3. **Durability settings** in `C:\xampp\mysql\bin\my.ini` (original saved as
+   `my.ini.bak-*`):
+   - `innodb_buffer_pool_size=128M`, `innodb_log_file_size=64M`
+   - `innodb_doublewrite=1`, `innodb_file_per_table=1`
+   - `aria_page_checksum=1`, `aria_recover_options=BACKUP,QUICK`
+4. **Automatic backups** — `scripts/db-backup.bat` dumps every database to
+   `D:\maamCindy\db-backups\auto-<timestamp>\full-backup.sql` and keeps the
+   newest 30. Scheduled task **ITS Database Backup** runs it daily at 6:00 PM.
+5. **Weekly integrity check** — `scripts/db-check.ps1` runs `mysqlcheck
+   --all-databases`, logs to `D:\maamCindy\db-backups\integrity.log`, and exits
+   non-zero when a table needs attention. Scheduled task **ITS Database
+   Check** runs it Sundays at 9:00 AM.
+
+**Rule:** never end `mysqld.exe` from Task Manager, and never close the XAMPP
+window mid-write. If MySQL will not stop, wait for the 30-second timeout in
+`mysql_stop.bat` instead of force-killing it.
+
+**Restore from a backup:**
+
+```bat
+C:\xampp\mysql\bin\mysql.exe -u root < D:\maamCindy\db-backups\auto-YYYYMMDD-HHMMSS\full-backup.sql
+```
+
+**Manual backup** (before importing `database.sql` or doing anything risky):
+
+```bat
+D:\maamCindy\Internship-Tracking-System\scripts\db-backup.bat
+```

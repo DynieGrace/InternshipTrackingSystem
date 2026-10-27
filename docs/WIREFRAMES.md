@@ -13,13 +13,14 @@ fields** of each screen.
 | # | Screen | Role | Main data shown |
 |---|---|---|---|
 | 1 | **Login** | All | `users`: email/username, password |
-| 2 | **Student Dashboard** | Student | placement, progress %, hours, requirements, personal QR |
-| 3 | **Attendance & Hours** | Student | `attendance`: time_in, time_out, rendered_hours |
-| 4 | **Requirements** | Student | `requirement_submissions`: status, remarks |
-| 5 | **Dashboard** | Coordinator | counts, review queue |
-| 6 | **Students** | Coordinator | `students`: student_number, full_name, course_year_section |
-| 7 | **Scan Attendance** | Supervisor | `attendance`: qr_scan_reference, time_in/out |
-| 8 | **Reports** | Coordinator | date filters, report type, export CSV / print |
+| 2 | **Student Dashboard** | Student | placement, progress %, hours, requirements |
+| 3 | **MyQR** | Student | personal QR for attendance verification |
+| 4 | **Attendance & Hours** | Student | `attendance`: time_in, time_out, rendered_hours |
+| 5 | **Requirements** | Student | `requirement_submissions`: status, remarks |
+| 6 | **Dashboard** | Coordinator | counts, review queue |
+| 7 | **Students** | Coordinator | `students`: student_number, full_name, course_year_section |
+| 8 | **Scan Attendance** | Supervisor | `attendance`: qr_scan_reference, time_in/out |
+| 9 | **Reports** | Coordinator | date filters, report type, export CSV / print |
 
 ---
 

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $placement = query_one(
             $db,
             "SELECT id, student_id FROM internship_placements
-             WHERE id = ? AND supervisor_id = ? AND status = 'active'",
+            WHERE id = ? AND supervisor_id = ? AND status = 'active'",
             [$placementId, (int)$supervisor['id']]
         );
         if (!$placement) {
@@ -88,11 +88,11 @@ if (!$supervisor) {
 $assignments = query_all(
     $db,
     "SELECT i.id, CONCAT(sp.student_number, ' · ', u.full_name) AS label
-     FROM internship_placements i
-     JOIN student_profiles sp ON sp.id = i.student_id
-     JOIN users u ON u.id = sp.user_id
-     WHERE i.supervisor_id = ? AND i.status = 'active'
-     ORDER BY u.full_name",
+    FROM internship_placements i
+    JOIN student_profiles sp ON sp.id = i.student_id
+    JOIN users u ON u.id = sp.user_id
+    WHERE i.supervisor_id = ? AND i.status = 'active'
+    ORDER BY u.full_name",
     [(int)$supervisor['id']]
 );
 $criteria = query_all($db, 'SELECT id, name, weight FROM evaluation_criteria WHERE active = 1 ORDER BY id');
@@ -117,11 +117,11 @@ echo panel('Submit an intern evaluation', 'Ratings and comments are saved to the
 $evaluations = query_all(
     $db,
     "SELECT e.id, e.evaluated_at, e.comments, e.released, sp.student_number, u.full_name
-     FROM evaluations e
-     JOIN student_profiles sp ON sp.id = e.student_id
-     JOIN users u ON u.id = sp.user_id
-     WHERE e.supervisor_id = ?
-     ORDER BY e.evaluated_at DESC",
+    FROM evaluations e
+    JOIN student_profiles sp ON sp.id = e.student_id
+    JOIN users u ON u.id = sp.user_id
+    WHERE e.supervisor_id = ?
+    ORDER BY e.evaluated_at DESC",
     [(int)$supervisor['id']]
 );
 
@@ -130,7 +130,7 @@ foreach ($evaluations as $evaluation) {
     $scores = query_all(
         $db,
         'SELECT c.name, s.rating, c.weight FROM evaluation_scores s
-         JOIN evaluation_criteria c ON c.id = s.criteria_id WHERE s.evaluation_id = ?',
+        JOIN evaluation_criteria c ON c.id = s.criteria_id WHERE s.evaluation_id = ?',
         [(int)$evaluation['id']]
     );
     $weighted = 0.0;

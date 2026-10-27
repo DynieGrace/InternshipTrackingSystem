@@ -16,6 +16,7 @@ $navMenus = [
         'dashboard'     => ['student/dashboard.php', 'Overview', '▦'],
         'profile'       => ['student/profile.php', 'My Profile', '☰'],
         'placement'     => ['student/placement.php', 'Placement', '⌂'],
+        'my-qr'         => ['student/my_qr.php', 'MyQR', '▦'],
         'requirements'  => ['student/requirements.php', 'Requirements', '▤'],
         'attendance'    => ['student/attendance.php', 'Attendance & Hours', '◷'],
         'evaluations'   => ['student/evaluations.php', 'Evaluations', '★'],
@@ -74,8 +75,8 @@ $flash = take_flash();
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>">
-  <script src="<?= e(url('assets/js/app.js')) ?>" defer></script>
+  <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>?v=<?= e(APP_VERSION) ?>">
+  <script src="<?= e(url('assets/js/app.js')) ?>?v=<?= e(APP_VERSION) ?>" defer></script>
 </head>
 <body class="app-page">
 <div class="app-shell">

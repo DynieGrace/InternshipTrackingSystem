@@ -32,8 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!field) return;
       const show = field.type === "password";
       field.type = show ? "text" : "password";
-      button.textContent = show ? "Hide" : "Show";
       button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      button.setAttribute("aria-pressed", String(show));
+      button.querySelector('[data-password-icon="show"]')?.toggleAttribute("hidden", show);
+      button.querySelector('[data-password-icon="hide"]')?.toggleAttribute("hidden", !show);
     });
   });
 
@@ -129,4 +131,276 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("pagehide", stopCamera);
+
+  /* ---------------- QR codes on ID cards ---------------- */
+  document.querySelectorAll("[data-qr-token]").forEach((box) => {
+    if (box.dataset.qrReady === "1" || typeof window.QRCode !== "function") return;
+    const size = parseInt(box.dataset.qrSize || "160", 10);
+    new window.QRCode(box, {
+      text: box.dataset.qrToken,
+      width: size,
+      height: size,
+      colorDark: "#111111",
+      colorLight: "#ffffff",
+      correctLevel: window.QRCode.CorrectLevel.M,
+    });
+    box.dataset.qrReady = "1";
+  });
+
+  /* ---------------- Scan result popup ---------------- */
+  document.querySelectorAll("[data-modal]").forEach((modal) => {
+    const close = () => modal.classList.remove("open");
+    modal.querySelectorAll("[data-modal-close]").forEach((button) => {
+      button.addEventListener("click", close);
+    });
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) close();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.classList.contains("open")) close();
+    });
+    window.requestAnimationFrame(() => modal.classList.add("open"));
+  });
+
+  /* ---------------- Student ID card -> PNG download ---------------- */
+  const loadImage = (src) =>
+    new Promise((resolve) => {
+      if (!src) {
+        resolve(null);
+        return;
+      }
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => resolve(null);
+      image.src = src;
+    });
+
+  const roundRectPath = (ctx, x, y, width, height, radius) => {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
+  };
+
+  const setFittedFont = (ctx, text, maxWidth, size, weight, family) => {
+    let current = size;
+    ctx.font = `${weight} ${current}px ${family}`;
+    while (ctx.measureText(text).width > maxWidth && current > 10) {
+      current -= 1;
+      ctx.font = `${weight} ${current}px ${family}`;
+    }
+  };
+
+  const drawIdCard = async (card) => {
+    const W = 900;
+    const H = 560;
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = W * scale;
+    canvas.height = H * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.textBaseline = "alphabetic";
+
+    const data = card.dataset;
+    const name = data.name || "Student Intern";
+    const number = data.number || "-";
+    const course = data.course || "BS Information Technology";
+    const year = data.year || "4th Year";
+    const company = data.company || "Not yet assigned";
+    const supervisor = data.supervisor || "To be assigned";
+    const valid = data.valid || "";
+    const token = data.token || "";
+
+    const family = '"DM Sans", "Segoe UI", Arial, sans-serif';
+    const headFamily = 'Manrope, "Segoe UI", Arial, sans-serif';
+
+    const [avatar, logo] = await Promise.all([
+      loadImage(data.avatar || ""),
+      loadImage(data.logo || ""),
+    ]);
+
+    ctx.save();
+    roundRectPath(ctx, 0, 0, W, H, 20);
+    ctx.clip();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+
+    /* Header band */
+    const band = ctx.createLinearGradient(0, 0, W, 116);
+    band.addColorStop(0, "#123b63");
+    band.addColorStop(1, "#0c2947");
+    ctx.fillStyle = band;
+    ctx.fillRect(0, 0, W, 116);
+
+    if (logo) {
+      ctx.save();
+      roundRectPath(ctx, 30, 30, 56, 56, 14);
+      ctx.clip();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(30, 30, 56, 56);
+      ctx.drawImage(logo, 34, 34, 48, 48);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = "#ffffff";
+      roundRectPath(ctx, 30, 30, 56, 56, 14);
+      ctx.fill();
+      ctx.fillStyle = "#123b63";
+      ctx.font = `800 18px ${headFamily}`;
+      ctx.textAlign = "center";
+      ctx.fillText("ITS", 58, 66);
+      ctx.textAlign = "left";
+    }
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `800 22px ${headFamily}`;
+    ctx.fillText("InternTrack", 102, 52);
+    ctx.fillStyle = "#b9d2e6";
+    ctx.font = `700 10px ${family}`;
+    ctx.fillText("STUDENT INTERN IDENTIFICATION", 103, 72);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#cfe2f2";
+    ctx.font = `700 10px ${family}`;
+    ctx.fillText(`${course} · ${year}`.toUpperCase(), W - 32, 48);
+    ctx.fillStyle = "#8fb6d4";
+    ctx.font = `600 10px ${family}`;
+    ctx.fillText("INTERNSHIP TRACKING SYSTEM", W - 32, 68);
+    ctx.textAlign = "left";
+
+    /* Photo */
+    ctx.save();
+    roundRectPath(ctx, 44, 146, 170, 200, 12);
+    ctx.clip();
+    ctx.fillStyle = "#f2f6fa";
+    ctx.fillRect(44, 146, 170, 200);
+    if (avatar) {
+      const ratio = Math.max(170 / avatar.width, 200 / avatar.height);
+      const drawWidth = avatar.width * ratio;
+      const drawHeight = avatar.height * ratio;
+      ctx.drawImage(
+        avatar,
+        44 + (170 - drawWidth) / 2,
+        146 + (200 - drawHeight) / 2,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      ctx.fillStyle = "#8fa8c0";
+      ctx.font = `800 46px ${headFamily}`;
+      ctx.textAlign = "center";
+      ctx.fillText(name.trim().slice(0, 2).toUpperCase(), 129, 258);
+      ctx.textAlign = "left";
+    }
+    ctx.restore();
+    ctx.strokeStyle = "#dfe7ef";
+    ctx.lineWidth = 1.5;
+    roundRectPath(ctx, 44, 146, 170, 200, 12);
+    ctx.stroke();
+
+    /* Identity details */
+    const x = 244;
+    ctx.fillStyle = "#7b8da0";
+    ctx.font = `800 10px ${family}`;
+    ctx.fillText("STUDENT INTERN", x, 166);
+
+    setFittedFont(ctx, name, 420, 30, 800, headFamily);
+    ctx.fillStyle = "#16283c";
+    ctx.fillText(name, x, 200);
+
+    const facts = [
+      ["STUDENT NO.", number],
+      ["PROGRAM", `${course} · ${year}`],
+      ["COMPANY", company],
+      ["SUPERVISOR", supervisor],
+    ];
+    let y = 238;
+    facts.forEach(([label, value]) => {
+      ctx.fillStyle = "#7b8da0";
+      ctx.font = `700 9px ${family}`;
+      ctx.fillText(label, x, y);
+      setFittedFont(ctx, String(value), 400, 14, 600, family);
+      ctx.fillStyle = "#22374d";
+      ctx.fillText(String(value), x, y + 16);
+      y += 44;
+    });
+
+    /* QR tile */
+    const qrSource =
+      card.querySelector("[data-qr-token] canvas") || card.querySelector("[data-qr-token] img");
+    ctx.save();
+    roundRectPath(ctx, 690, 146, 180, 180, 12);
+    ctx.clip();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(690, 146, 180, 180);
+    if (qrSource) ctx.drawImage(qrSource, 700, 156, 160, 160);
+    ctx.restore();
+    ctx.strokeStyle = "#dfe7ef";
+    ctx.lineWidth = 1.5;
+    roundRectPath(ctx, 690, 146, 180, 180, 12);
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    setFittedFont(ctx, name, 176, 13, 700, family);
+    ctx.fillStyle = "#16283c";
+    ctx.fillText(name, 780, 352);
+    ctx.fillStyle = "#7b8da0";
+    ctx.font = `600 9px ${family}`;
+    ctx.fillText("SCAN FOR ATTENDANCE", 780, 368);
+    ctx.textAlign = "left";
+
+    /* Footer */
+    ctx.fillStyle = "#f6f9fc";
+    ctx.fillRect(0, 470, W, H - 470);
+    ctx.strokeStyle = "#dfe7ef";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 470);
+    ctx.lineTo(W, 470);
+    ctx.stroke();
+
+    ctx.fillStyle = "#5e7b96";
+    ctx.font = `600 10px ${family}`;
+    ctx.fillText(`Valid: ${valid}`, 44, 505);
+    if (token) {
+      ctx.fillStyle = "#93a7ba";
+      ctx.font = `600 9px ${family}`;
+      ctx.fillText(`TOKEN ${token}`, 44, 524);
+    }
+
+    ctx.restore();
+    return canvas;
+  };
+
+  document.querySelectorAll("[data-download-id]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const card = button.closest("[data-id-card]") || document.querySelector("[data-id-card]");
+      const label = button.textContent;
+      if (!card) return;
+      button.disabled = true;
+      button.textContent = "Preparing…";
+      try {
+        if (document.fonts?.ready) await document.fonts.ready;
+        const canvas = await drawIdCard(card);
+        const safeNumber = (card.dataset.number || "student").replace(/[^A-Za-z0-9_-]+/g, "");
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `StudentID-${safeNumber}.png`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(link.href), 1500);
+        }, "image/png");
+      } finally {
+        button.disabled = false;
+        button.textContent = label;
+      }
+    });
+  });
 });
