@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>Internship Tracking System · UI/UX Preview</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --orange: #f97316;
+      --orange-dark: #df620b;
+      --orange-soft: #fff1e7;
+      --ink: #171717;
+      --muted: #77736f;
+      --line: #ece9e6;
+      --paper: #fff;
+      --canvas: #f8f7f5;
+      --green: #23845b;
+      --green-soft: #e8f5ee;
+      --yellow: #a26a08;
+      --yellow-soft: #fff5dc;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid #f9731666;
+      outline-offset: 2px;
+    }
+    .app-shell { min-height: 100vh; }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 5;
+      display: flex;
+      width: 252px;
+      flex-direction: column;
+      padding: 21px 14px 14px;
+      color: #fff;
+      background: #151515;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 2px 7px 21px;
+      border-bottom: 1px solid #ffffff1a;
+      color: #fff;
+      text-decoration: none;
+    }
+    .brand img { width: 40px; height: 40px; padding: 3px; border-radius: 11px; background: #fff; object-fit: contain; }
+    .brand-copy { display: grid; gap: 3px; }
+    .brand-copy strong { font-size: 15px; letter-spacing: -.4px; }
+    .brand-copy small { color: #aaa; font-size: 10px; }
+    .nav-label { padding: 22px 10px 8px; color: #929292; font-size: 9px; font-weight: 800; letter-spacing: 1.5px; }
+    .role-nav { display: grid; gap: 4px; overflow-y: auto; }
+    .nav-link {
+      display: flex;
+      min-height: 39px;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 8px;
+      color: #c9c9c9;
+      background: transparent;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .nav-link:hover { color: #fff; background: #ffffff10; }
+    .nav-link.active { color: #fff; background: var(--orange); box-shadow: inset 3px 0 #ffc08e; }
+    .nav-icon { display: grid; width: 20px; place-items: center; color: #aaa; font-size: 14px; }
+    .nav-link.active .nav-icon { color: #fff; }
+    .nav-count { min-width: 20px; margin-left: auto; padding: 3px 6px; border-radius: 20px; color: #fff; background: #ffffff20; text-align: center; font-size: 9px; }
+    .sidebar-bottom { margin-top: auto; padding-top: 12px; border-top: 1px solid #ffffff1a; }
+    .account { display: flex; align-items: center; gap: 9px; padding: 9px 5px 13px; }
+    .avatar { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 50%; color: #71320b; background: #ffcfaa; font-size: 10px; font-weight: 800; }
+    .account-copy { display: grid; min-width: 0; gap: 3px; }
+    .account-copy strong { overflow: hidden; color: #fff; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .account-copy small { color: #aaa; font-size: 9px; }
+    .preview-note { padding: 10px; border: 1px solid #ffffff20; border-radius: 8px; color: #bdbdbd; font-size: 9px; line-height: 1.6; }
+
+    .main { min-height: 100vh; margin-left: 252px; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      min-height: 72px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 34px;
+      border-bottom: 1px solid var(--line);
+      background: #ffffffed;
+      backdrop-filter: blur(12px);
+    }
+    .crumb { margin: 0 0 4px; color: #8a8580; font-size: 9px; font-weight: 800; letter-spacing: 1.3px; }
+    .crumb span { padding: 0 5px; color: var(--orange); }
+    .page-title { margin: 0; font-size: 17px; font-weight: 750; letter-spacing: -.4px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .search { position: relative; }
+    .search-icon { position: absolute; top: 8px; left: 11px; color: #888; font-size: 14px; }
+    .search input { width: 205px; height: 35px; padding: 0 12px 0 31px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 10px; }
+    .icon-button { position: relative; display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 15px; cursor: pointer; }
+    .notification-dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; border: 1px solid #fff; border-radius: 50%; background: var(--orange); }
+    .top-avatar { width: 33px; height: 33px; }
+    .mobile-menu { display: none; }
+    .content { width: min(100%, 1400px); margin: 0 auto; padding: 26px 34px 32px; }
+    .welcome-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 21px; }
+    .eyebrow { margin: 0 0 7px; color: var(--orange-dark); font-size: 9px; font-weight: 800; letter-spacing: 1.45px; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(22px, 2.4vw, 29px); letter-spacing: -1.1px; }
+    .welcome-copy { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .primary-button, .secondary-button {
+      display: inline-flex;
+      min-height: 36px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 750;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .primary-button { color: #fff; background: var(--orange); }
+    .primary-button:hover { background: var(--orange-dark); }
+    .secondary-button { border-color: var(--line); background: #fff; }
+    .secondary-button:hover { border-color: #f2b58b; background: #fffaf6; }
+
+    .role-switcher {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 13px;
+      margin-bottom: 18px;
+      border: 1px solid #f2d2bd;
+      border-radius: 10px;
+      background: #fffaf6;
+    }
+    .switch-copy { margin-right: auto; }
+    .switch-copy strong { display: block; font-size: 10px; }
+    .switch-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .role-buttons { display: flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .role-button { padding: 7px 10px; border: 0; border-radius: 6px; color: #716b66; background: transparent; font-size: 9px; font-weight: 700; cursor: pointer; }
+    .role-button[aria-pressed="true"] { color: #fff; background: var(--ink); }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat-card { min-width: 0; padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); box-shadow: 0 3px 12px #17171705; }
+    .stat-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #716c68; font-size: 9px; font-weight: 650; }
+    .stat-icon { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 8px; color: var(--orange-dark); background: var(--orange-soft); font-size: 14px; }
+    .stat-value { display: block; margin-top: 12px; font-size: 24px; font-weight: 760; letter-spacing: -.9px; }
+    .stat-meta { display: block; margin-top: 4px; color: #88827d; font-size: 9px; }
+    .positive { color: var(--green); }
+
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(250px, .85fr); gap: 14px; margin-bottom: 14px; }
+    .panel { min-width: 0; padding: 17px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); box-shadow: 0 3px 12px #17171705; }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+    .panel-heading h2 { margin: 0; font-size: 12px; letter-spacing: -.15px; }
+    .panel-heading p { margin: 5px 0 0; color: var(--muted); font-size: 9px; }
+    .text-button { padding: 3px 0; border: 0; color: var(--orange-dark); background: transparent; font-size: 9px; font-weight: 750; cursor: pointer; white-space: nowrap; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 9px 8px; border-bottom: 1px solid var(--line); color: #8a8580; font-size: 8px; font-weight: 800; letter-spacing: .55px; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 11px 8px; border-bottom: 1px solid #f1efed; color: #5e5955; font-size: 9px; vertical-align: middle; }
+    tr:last-child td { border-bottom: 0; }
+    td strong { color: var(--ink); font-size: 9px; font-weight: 700; }
+    .person { display: flex; align-items: center; gap: 8px; min-width: 130px; }
+    .person-avatar { display: grid; width: 28px; height: 28px; flex: 0 0 28px; place-items: center; border-radius: 8px; color: #70401f; background: #f7e6d8; font-size: 8px; font-weight: 800; }
+    .person-copy { display: grid; gap: 3px; }
+    .person-copy small { color: #8a8580; font-size: 8px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 7px; border-radius: 20px; font-size: 8px; font-weight: 750; white-space: nowrap; }
+    .badge.pending, .badge.submitted { color: var(--yellow); background: var(--yellow-soft); }
+    .badge.approved, .badge.active { color: var(--green); background: var(--green-soft); }
+    .badge.review { color: #6a5bb5; background: #efedff; }
+    .badge.neutral { color: #68615c; background: #f0efed; }
+    .quick-list { display: grid; gap: 8px; }
+    .quick-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #f0eeec; border-radius: 8px; background: #fff; }
+    .quick-icon { display: grid; width: 31px; height: 31px; flex: 0 0 31px; place-items: center; border-radius: 8px; color: var(--orange-dark); background: var(--orange-soft); font-size: 13px; }
+    .quick-copy { display: grid; flex: 1; gap: 4px; }
+    .quick-copy strong { font-size: 9px; }
+    .quick-copy small { color: var(--muted); font-size: 8px; line-height: 1.4; }
+    .quick-arrow { color: #a29c96; font-size: 13px; }
+    .bottom-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(250px, .8fr); gap: 14px; }
+    .progress-block { display: grid; gap: 12px; }
+    .progress-row { display: grid; gap: 6px; }
+    .progress-label { display: flex; justify-content: space-between; gap: 10px; color: #69635f; font-size: 9px; }
+    .progress-label strong { color: var(--ink); font-size: 9px; }
+    .progress-track { height: 7px; overflow: hidden; border-radius: 9px; background: #f1efed; }
+    .progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange), #ffad68); }
+    .notice-list { display: grid; gap: 0; }
+    .notice-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1efed; }
+    .notice-item:last-child { padding-bottom: 0; border-bottom: 0; }
+    .notice-dot { width: 7px; height: 7px; flex: 0 0 7px; margin-top: 4px; border-radius: 50%; background: var(--orange); }
+    .notice-copy { display: grid; gap: 4px; }
+    .notice-copy strong { font-size: 9px; }
+    .notice-copy small { color: var(--muted); font-size: 8px; line-height: 1.5; }
+    .footer { padding: 19px 0 3px; color: #938d87; text-align: center; font-size: 8px; }
+    .toast { position: fixed; right: 22px; bottom: 20px; z-index: 10; padding: 11px 15px; border: 1px solid #d5e9dd; border-radius: 9px; color: #176345; background: #f0faf4; box-shadow: 0 8px 30px #17171716; font-size: 10px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1050px) {
+      .content { padding-right: 23px; padding-left: 23px; }
+      .topbar { padding-right: 23px; padding-left: 23px; }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-grid, .bottom-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .sidebar { width: 248px; transform: translateX(-100%); transition: transform .2s ease; box-shadow: 12px 0 30px #0002; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar { min-height: 64px; padding: 10px 15px; }
+      .mobile-menu { display: grid; width: 33px; height: 33px; margin-right: 9px; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; }
+      .topbar-title { display: flex; align-items: center; }
+      .search input { width: 145px; }
+      .topbar .top-avatar { display: none; }
+      .content { padding: 21px 15px 25px; }
+      .welcome-row { align-items: flex-start; }
+      .welcome-row .primary-button { padding: 8px 9px; font-size: 9px; }
+      .role-switcher { align-items: flex-start; flex-direction: column; gap: 9px; }
+      .role-buttons { width: 100%; }
+      .role-button { flex: 1; }
+    }
+    @media (max-width: 430px) {
+      .search input { width: 112px; }
+      .top-actions { gap: 6px; }
+      .welcome-row { flex-direction: column; }
+      .stat-grid { gap: 8px; }
+      .stat-card { padding: 12px; }
+      .stat-value { font-size: 21px; }
+      .panel { padding: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Internship Tracking System home">
+        <img src="../assets/images/logo.png" alt="Internship Tracking System logo">
+        <span class="brand-copy"><strong>Internship Portal</strong><small>BSIT · Internship Tracking</small></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="role-nav" id="roleNav"></nav>
+      <div class="sidebar-bottom">
+        <div class="account">
+          <span class="avatar" id="sideAvatar">MC</span>
+          <span class="account-copy"><strong id="sideName">Maria C. Santos</strong><small id="sideRole">Internship Coordinator</small></span>
+        </div>
+        <div class="preview-note">UI/UX preview · Sample records only<br>Not connected to the live database.</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <button class="mobile-menu" id="menuToggle" type="button" aria-label="Open navigation">☰</button>
+          <div>
+            <p class="crumb">WORKSPACE <span>/</span><span id="crumbTitle">Overview</span></p>
+            <p class="page-title" id="topTitle">Overview</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <label class="search">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Search this page…" aria-label="Search this page">
+          </label>
+          <button class="icon-button" id="notificationButton" type="button" aria-label="View notifications">♧<span class="notification-dot"></span></button>
+          <span class="avatar top-avatar" id="topAvatar" aria-label="Current user">MC</span>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow" id="dateLabel">TUESDAY · NOVEMBER 3</p>
+            <h1 id="welcomeTitle">Good morning, Maria</h1>
+            <p class="welcome-copy" id="welcomeCopy">Here’s your internship programme at a glance. A few items are ready for your review.</p>
+          </div>
+          <button class="primary-button" id="primaryAction" type="button"><span aria-hidden="true">＋</span> <span id="primaryLabel">Create announcement</span></button>
+        </div>
+
+        <section class="role-switcher" aria-label="Preview another user role">
+          <div class="switch-copy"><strong>Explore each workspace</strong><small>Switch roles to preview the whole system.</small></div>
+          <div class="role-buttons" role="group" aria-label="Choose a role">
+            <button class="role-button" type="button" data-role="coordinator" aria-pressed="true">Coordinator</button>
+            <button class="role-button" type="button" data-role="student" aria-pressed="false">Student</button>
+            <button class="role-button" type="button" data-role="supervisor" aria-pressed="false">Supervisor</button>
+          </div>
+        </section>
+
+        <section class="stat-grid" id="statGrid" aria-label="Workspace summary"></section>
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <div><h2 id="tableTitle">Needs your attention</h2><p id="tableSubtitle">A single queue for pending programme tasks.</p></div>
+              <button class="text-button" id="viewAllButton" type="button">View all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><div><h2 id="quickTitle">Quick actions</h2><p id="quickSubtitle">Common tasks for your workspace.</p></div></div>
+            <div class="quick-list" id="quickList"></div>
+          </section>
+        </div>
+        <div class="bottom-grid">
+          <section class="panel">
+            <div class="panel-heading"><div><h2 id="progressTitle">Programme progress</h2><p id="progressSubtitle">A snapshot of active internship activity.</p></div><button class="text-button" id="reportButton" type="button">View reports →</button></div>
+            <div class="progress-block" id="progressBlock"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><div><h2 id="updatesTitle">Recent updates</h2><p>Important changes in your workspace.</p></div></div>
+            <div class="notice-list" id="noticeList"></div>
+          </section>
+        </div>
+        <footer class="footer">Internship Tracking System <span aria-hidden="true">·</span> UI/UX concept preview <span aria-hidden="true">·</span> Values shown are illustrative</footer>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const roles = {
+      coordinator: {
+        label: "Internship Coordinator",
+        name: "Maria C. Santos",
+        initials: "MC",
+        greeting: "Good morning, Maria",
+        description: "Here’s your internship programme at a glance. A few items are ready for your review.",
+        primary: "Create announcement",
+        nav: [["Overview", "▦"], ["Students", "♙"], ["Companies", "⌂"], ["Supervisors", "⚑"], ["Placements", "⇄"], ["Requirements", "▤"], ["Document review", "⇩", 8], ["Attendance", "◷", 5], ["Evaluations", "★"], ["Announcements", "✎"], ["User accounts", "⚙"], ["Reports", "▣"], ["My profile", "☰"], ["Notifications", "◔", 3]],
+        stats: [
+          ["Students", "124", "Registered student interns", "♙", "+8 this month"],
+          ["Partner companies", "18", "Active partner companies", "⌂", "Across 6 industries"],
+          ["Active placements", "96", "Current internships", "⇄", "77% of students placed"],
+          ["Needs review", "13", "8 documents · 5 attendance", "◷", "Across 2 queues"]
+        ],
+        tableTitle: "Needs your attention",
+        tableSubtitle: "Pending items from students and company supervisors.",
+        columns: ["Student / record", "Request", "Submitted", "Status"],
+        rows: [
+          ["Ana Reyes", "Weekly journal · Week 4", "Today, 9:12 AM", "submitted"],
+          ["Miguel Cruz", "Attendance · Nov 2", "Today, 8:46 AM", "pending"],
+          ["Jamie Flores", "Internship agreement", "Yesterday", "submitted"],
+          ["Lea Mendoza", "Attendance · Nov 1", "Yesterday", "pending"]
+        ],
+        quickTitle: "Coordinator shortcuts",
+        quick: [["⇩", "Review documents", "8 submissions waiting in the queue."], ["◷", "Verify attendance", "5 completed sessions need a decision."], ["⇄", "Manage placements", "12 students still need a placement."]],
+        progressTitle: "Placement overview",
+        progressSubtitle: "How students are progressing through placement.",
+        progress: [["Students placed", 77, "96 / 124"], ["Requirements approved", 68, "84 / 124"], ["Active partner companies", 82, "18 companies"]],
+        updatesTitle: "Programme updates",
+        updates: [["New documents submitted", "8 files are ready for coordinator review."], ["Attendance to verify", "5 completed sessions are waiting for approval."], ["Placement follow-up", "12 students are not yet assigned to a company."]]
+      },
+      student: {
+        label: "Student Intern",
+        name: "Ana M. Reyes",
+        initials: "AR",
+        greeting: "Good morning, Ana",
+        description: "Your internship progress, attendance hours, and upcoming requirements in one place.",
+        primary: "Record attendance",
+        nav: [["Overview", "▦"], ["My profile", "☰"], ["Placement", "⌂"], ["My QR", "▦"], ["Requirements", "▤"], ["Attendance & hours", "◷"], ["Evaluations", "★"], ["Notifications", "◔", 2]],
+        stats: [
+          ["Approved hours", "186.5", "Verified sessions only", "◷", "On track"],
+          ["Hours remaining", "413.5", "600 hours required", "↗", "31% complete"],
+          ["Requirements", "3 / 5", "Approved documents", "▤", "2 need attention"],
+          ["Unread updates", "2", "Messages from your team", "◔", "Latest: today"]
+        ],
+        tableTitle: "Your next steps",
+        tableSubtitle: "Stay on top of requirements and attendance reviews.",
+        columns: ["Item", "Details", "Due / date", "Status"],
+        rows: [
+          ["Weekly journal · Week 5", "Upload your latest journal", "Nov 7", "pending"],
+          ["Attendance · Nov 2", "8.0 hours · Northstar Labs", "Nov 2", "review"],
+          ["Midterm evaluation", "Supervisor feedback", "Nov 14", "neutral"],
+          ["Internship agreement", "Reviewed by coordinator", "Oct 27", "approved"]
+        ],
+        quickTitle: "Your shortcuts",
+        quick: [["▤", "Submit a requirement", "Upload a document for coordinator review."], ["▦", "Open my QR code", "Show your code to record attendance."], ["★", "View evaluations", "Read feedback released by your supervisor."]],
+        progressTitle: "Internship progress",
+        progressSubtitle: "Only approved attendance hours count toward your total.",
+        progress: [["Required hours", 31, "186.5 / 600 hrs"], ["Requirements approved", 60, "3 / 5 documents"], ["Placement duration", 48, "About halfway through"]],
+        updatesTitle: "Your latest updates",
+        updates: [["Journal deadline coming up", "Weekly journal · Week 5 is due November 7."], ["Attendance submitted", "Your November 2 session is waiting for review."], ["Evaluation released", "Your supervisor shared new midterm feedback."]]
+      },
+      supervisor: {
+        label: "Company Supervisor",
+        name: "Daniel Lim",
+        initials: "DL",
+        greeting: "Good morning, Daniel",
+        description: "Keep track of your assigned interns, attendance reviews, and evaluation feedback.",
+        primary: "Review attendance",
+        nav: [["Overview", "▦"], ["Assigned interns", "♙"], ["Attendance review", "◷", 3], ["Evaluations", "★"], ["Notifications", "◔", 1], ["My profile", "☰"]],
+        stats: [
+          ["Assigned interns", "6", "Active placements", "♙", "Northstar Labs"],
+          ["Attendance to verify", "3", "Completed sessions", "◷", "Oldest: yesterday"],
+          ["Evaluations due", "2", "Feedback to complete", "★", "Due this week"],
+          ["Unread updates", "1", "Programme notification", "◔", "Received today"]
+        ],
+        tableTitle: "Interns needing follow-up",
+        tableSubtitle: "Attendance sessions and evaluations assigned to you.",
+        columns: ["Intern / record", "Details", "Date", "Status"],
+        rows: [
+          ["Ana Reyes", "Attendance · 8.0 hours", "Nov 2", "pending"],
+          ["Miguel Cruz", "Attendance · 7.5 hours", "Nov 2", "pending"],
+          ["Jamie Flores", "Monthly evaluation", "Due Nov 8", "review"],
+          ["Lea Mendoza", "Attendance · 8.0 hours", "Nov 1", "pending"]
+        ],
+        quickTitle: "Supervisor shortcuts",
+        quick: [["◷", "Review attendance", "Approve completed shifts or flag a record."], ["♙", "View assigned interns", "Check student profiles and placement details."], ["★", "Complete an evaluation", "Share structured feedback with an intern."]],
+        progressTitle: "Team at a glance",
+        progressSubtitle: "Progress for interns assigned to your company.",
+        progress: [["Attendance reviews", 50, "3 of 6 sessions complete"], ["Evaluation check-ins", 67, "4 of 6 submitted"], ["Active placements", 100, "6 interns assigned"]],
+        updatesTitle: "Supervisor updates",
+        updates: [["Attendance needs your review", "3 completed sessions are ready for verification."], ["Evaluation due this week", "Jamie Flores · Monthly evaluation is due November 8."], ["New programme announcement", "Review the updated internship documentation guide."]]
+      }
+    };
+
+    const pageCopy = {
+      "Overview": ["Programme overview", "Your current workspace at a glance."],
+      "Students": ["Student directory", "Browse student records and internship progress."],
+      "Companies": ["Partner companies", "Manage active internship partner companies."],
+      "Supervisors": ["Supervisor directory", "View company supervisors and their assigned interns."],
+      "Placements": ["Internship placements", "Track company assignments and placement status."],
+      "Requirements": ["Requirements", "Review required documents, deadlines, and submissions."],
+      "Document review": ["Document review", "Check files submitted by student interns."],
+      "Attendance": ["Attendance review", "Verify attendance sessions and rendered hours."],
+      "Attendance & hours": ["Attendance & hours", "Review your attendance records and approved hours."],
+      "Attendance review": ["Attendance review", "Review completed sessions for your assigned interns."],
+      "Evaluations": ["Evaluations", "Review internship feedback and evaluation records."],
+      "Announcements": ["Announcements", "Share programme updates with your internship community."],
+      "User accounts": ["User accounts", "Manage access for students and programme staff."],
+      "Reports": ["Reports & analytics", "Explore attendance, placement, and requirement summaries."],
+      "My profile": ["My profile", "View and update your account information."],
+      "Placement": ["My placement", "View your assigned company, supervisor, and schedule."],
+      "My QR": ["My attendance QR", "Show your personal code to your supervisor when recording attendance."],
+      "Assigned interns": ["Assigned interns", "See the interns assigned to your company account."],
+      "Notifications": ["Notifications", "Review important updates from your internship programme."]
+    };
+
+    let activeRole = "coordinator";
+    let activePage = "Overview";
+    let toastTimer;
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+
+    function initials(name) {
+      return name.split(" ").map(part => part[0]).slice(0, 2).join("");
+    }
+
+    function renderNavigation(role) {
+      const data = roles[role];
+      document.getElementById("roleNav").innerHTML = data.nav.map(([label, icon, count]) => `
+        <button class="nav-link${label === activePage ? " active" : ""}" type="button" data-page="${escapeHTML(label)}" aria-current="${label === activePage ? "page" : "false"}">
+          <span class="nav-icon" aria-hidden="true">${icon}</span><span>${escapeHTML(label)}</span>${count ? `<span class="nav-count">${count}</span>` : ""}
+        </button>`).join("");
+    }
+
+    function renderRows(role, searchTerm) {
+      const data = roles[role];
+      const rows = data.rows.filter(row => row.join(" ").toLowerCase().includes(searchTerm));
+      document.getElementById("tableHead").innerHTML = `<tr>${data.columns.map(column => `<th>${escapeHTML(column)}</th>`).join("")}</tr>`;
+      document.getElementById("tableBody").innerHTML = rows.length
+        ? rows.map(row => `<tr>${row.map((cell, index) => {
+          if (index === 0) return `<td><strong>${escapeHTML(cell)}</strong></td>`;
+          const status = ["pending", "submitted", "approved", "active", "review"].includes(cell.toLowerCase());
+          return `<td>${status ? `<span class="badge ${escapeHTML(cell.toLowerCase())}">${escapeHTML(cell === "review" ? "In review" : cell[0].toUpperCase() + cell.slice(1))}</span>` : escapeHTML(cell)}</td>`;
+        }).join("")}</tr>`).join("")
+        : `<tr><td colspan="${data.columns.length}" style="padding:22px;text-align:center;color:#888">No matching records.</td></tr>`;
+    }
+
+    function render(role = activeRole) {
+      activeRole = role;
+      const data = roles[role];
+      const labels = document.querySelectorAll(".role-button");
+      labels.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.role === role)));
+      document.getElementById("sideName").textContent = data.name;
+      document.getElementById("sideRole").textContent = data.label;
+      document.getElementById("sideAvatar").textContent = data.initials;
+      document.getElementById("topAvatar").textContent = data.initials;
+      document.getElementById("welcomeTitle").textContent = data.greeting;
+      document.getElementById("welcomeCopy").textContent = data.description;
+      document.getElementById("primaryLabel").textContent = data.primary;
+      renderNavigation(role);
+
+      document.getElementById("statGrid").innerHTML = data.stats.map(([label, value, meta, icon, footnote]) => `
+        <article class="stat-card">
+          <div class="stat-top"><span>${escapeHTML(label)}</span><span class="stat-icon" aria-hidden="true">${icon}</span></div>
+          <strong class="stat-value">${escapeHTML(value)}</strong>
+          <span class="stat-meta">${escapeHTML(meta)} <span class="positive">${escapeHTML(footnote)}</span></span>
+        </article>`).join("");
+
+      document.getElementById("tableTitle").textContent = data.tableTitle;
+      document.getElementById("tableSubtitle").textContent = data.tableSubtitle;
+      document.getElementById("quickTitle").textContent = data.quickTitle;
+      document.getElementById("quickSubtitle").textContent = "Common tasks for your workspace.";
+      document.getElementById("progressTitle").textContent = data.progressTitle;
+      document.getElementById("progressSubtitle").textContent = data.progressSubtitle;
+      document.getElementById("updatesTitle").textContent = role === "student" ? "Your latest updates" : role === "supervisor" ? "Supervisor updates" : "Programme updates";
+      document.getElementById("reportButton").hidden = role !== "coordinator";
+
+      document.getElementById("quickList").innerHTML = data.quick.map(([icon, title, caption]) => `
+        <button class="quick-item" type="button" data-message="${escapeHTML(title)}">
+          <span class="quick-icon" aria-hidden="true">${icon}</span><span class="quick-copy"><strong>${escapeHTML(title)}</strong><small>${escapeHTML(caption)}</small></span><span class="quick-arrow" aria-hidden="true">›</span>
+        </button>`).join("");
+      document.getElementById("progressBlock").innerHTML = data.progress.map(([label, value, detail]) => `
+        <div class="progress-row"><div class="progress-label"><span>${escapeHTML(label)}</span><strong>${escapeHTML(detail)}</strong></div><div class="progress-track" role="progressbar" aria-label="${escapeHTML(label)}" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="100"><span style="width:${value}%"></span></div></div>`).join("");
+      document.getElementById("noticeList").innerHTML = data.updates.map(([title, detail]) => `
+        <div class="notice-item"><span class="notice-dot" aria-hidden="true"></span><span class="notice-copy"><strong>${escapeHTML(title)}</strong><small>${escapeHTML(detail)}</small></span></div>`).join("");
+
+      const page = pageCopy[activePage] || pageCopy.Overview;
+      document.getElementById("crumbTitle").textContent = activePage;
+      document.getElementById("topTitle").textContent = activePage;
+      document.getElementById("welcomeCopy").textContent = activePage === "Overview"
+        ? data.description
+        : `${page[1]} This interactive preview uses sample data.`;
+      renderRows(role, document.getElementById("searchInput").value.trim().toLowerCase());
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    document.querySelector(".role-buttons").addEventListener("click", event => {
+      const button = event.target.closest("[data-role]");
+      if (!button) return;
+      activePage = "Overview";
+      render(button.dataset.role);
+    });
+
+    document.getElementById("roleNav").addEventListener("click", event => {
+      const button = event.target.closest("[data-page]");
+      if (!button) return;
+      activePage = button.dataset.page;
+      render();
+      document.getElementById("sidebar").classList.remove("open");
+    });
+
+    document.getElementById("searchInput").addEventListener("input", event => {
+      renderRows(activeRole, event.target.value.trim().toLowerCase());
+    });
+
+    document.getElementById("primaryAction").addEventListener("click", () => showToast(`${roles[activeRole].primary} · preview action`));
+    document.getElementById("viewAllButton").addEventListener("click", () => showToast("You're viewing all sample items."));
+    document.getElementById("reportButton").addEventListener("click", () => {
+      activePage = "Reports";
+      render();
+    });
+    document.getElementById("notificationButton").addEventListener("click", () => {
+      activePage = "Notifications";
+      render();
+    });
+    document.getElementById("quickList").addEventListener("click", event => {
+      const item = event.target.closest("[data-message]");
+      if (item) showToast(`${item.dataset.message} · preview action`);
+    });
+    document.getElementById("menuToggle").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    render();
+  </script>
+</body>
+</html>

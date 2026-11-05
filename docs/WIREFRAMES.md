@@ -1,36 +1,26 @@
-# Internship Tracking System — Data Modeling Wireframes
+# Internship Tracking System — Wireframe Blueprint
 
-Low-fidelity (gray-box) wireframes that show the layout and the **data
-fields** of each screen.
+The [wireframe blueprint](./wireframes.html) is a simple, low-fidelity sketch
+of the existing system. It uses unlabelled boxes, lines, and placeholders to
+show layout only; it is not the final UI design or a content mockup.
 
-- **Rendered image:** [`wireframes.png`](wireframes.png)
-- **Viewable / printable page:** [`wireframes.html`](wireframes.html)
+The blueprint is based on the implemented public/account routes and all
+student, supervisor, and coordinator pages. Related screens with the same
+layout are grouped together and their routes are listed beside each sketch.
 
----
+- [Open the wireframe blueprint](./wireframes.html)
+- [Open/download the Figma-importable editable SVG](./wireframes-figma.svg)
+- [Open the interactive UI/UX preview](./ui-ux-preview.html)
+- [View the implemented database data dictionary](./DATA-DICTIONARY.md)
+- [View the extended ERD](./EERD.md)
 
-## Screens
+## Import into Figma
 
-| # | Screen | Role | Main data shown |
-|---|---|---|---|
-| 1 | **Login** | All | `users`: email/username, password |
-| 2 | **Student Dashboard** | Student | placement, progress %, hours, requirements |
-| 3 | **MyQR** | Student | personal QR for attendance verification |
-| 4 | **Attendance & Hours** | Student | `attendance`: time_in, time_out, rendered_hours |
-| 5 | **Requirements** | Student | `requirement_submissions`: status, remarks |
-| 6 | **Dashboard** | Coordinator | counts, review queue |
-| 7 | **Students** | Coordinator | `students`: student_number, full_name, course_year_section |
-| 8 | **Scan Attendance** | Supervisor | `attendance`: qr_scan_reference, time_in/out |
-| 9 | **Reports** | Coordinator | date filters, report type, export CSV / print |
+1. Download `wireframes-figma.svg`.
+2. In Figma, drag the SVG onto a design canvas, or use **File → Place image**.
+3. Each of the 31 screen sketches is a separate vector group. Ungroup a screen
+   to edit its individual boxes and lines.
 
----
-
-## Conventions
-
-- Gray boxes = interface elements / data placeholders.
-- **Orange** = primary action (button).
-- Dashed outlines = panels / cards.
-- Tables show the main entity columns.
-
-These wireframes map 1:1 to the implemented pages in `student/`,
-`coordinator/`, and `supervisor/`, and to the entities in
-[`ERD.md`](ERD.md) / [`EERD.md`](EERD.md).
+The SVG is a board of grouped screen sketches, not a native `.fig` project.
+Frame names and routes are labels outside the screen sketches; inside each
+screen are only grayscale layout placeholders.

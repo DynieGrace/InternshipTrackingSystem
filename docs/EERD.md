@@ -6,6 +6,7 @@ database (MySQL / MariaDB).
 - **Rendered image:** [`EERD.png`](EERD.png)
 - **Viewable / printable page:** [`eerd.html`](eerd.html) (open in a browser → Print → Save as PDF)
 - **Mermaid source:** [`eerd.mmd`](eerd.mmd)
+- **Complete field definitions:** [`DATA-DICTIONARY.md`](DATA-DICTIONARY.md)
 
 Legend: `PK` primary key · `FK` foreign key · `UK` unique ·
 `||--o{` one-to-zero-or-many · `||--o|` one-to-zero-or-one.

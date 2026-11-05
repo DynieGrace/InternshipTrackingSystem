@@ -65,7 +65,7 @@ Internship-Tracking-System/
 ├── coordinator/                # Internship Coordinator pages
 ├── supervisor/                 # Company Supervisor pages
 ├── uploads/                    # Uploaded documents (execution blocked)
-├── docs/                       # EERD diagram (EERD.png, eerd.html, eerd.mmd)
+├── docs/                       # ERD/EERD, complete wireframes, and data dictionary
 ├── database.sql                # Schema + sample data
 ├── index.php                   # Entry point (routes to login/dashboard)
 ├── login.php  register.php  logout.php
@@ -76,6 +76,10 @@ Internship-Tracking-System/
 ├── install.php                 # One-time first-coordinator setup
 └── README.md
 ```
+
+See [`docs/DATA-DICTIONARY.md`](docs/DATA-DICTIONARY.md) for all implemented
+database tables and fields, and [`docs/WIREFRAMES.md`](docs/WIREFRAMES.md) for
+the role-based screen inventory.
 
 ---
 

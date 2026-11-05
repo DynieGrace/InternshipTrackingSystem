@@ -167,7 +167,7 @@ $records = query_all(
     JOIN student_profiles sp ON sp.id = a.student_id
     JOIN users u ON u.id = sp.user_id
     $where
-    ORDER BY a.time_in DESC LIMIT 300",
+     ORDER BY a.time_in DESC LIMIT 300",
     $params
 );
 
